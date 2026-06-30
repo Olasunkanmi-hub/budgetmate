@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Finlytics — Personal Finance Dashboard</title>
+<title>MoneyWise — Personal Finance Dashboard</title>
 <meta name="theme-color" content="#6366f1"/>
-<meta name="description" content="Finlytics — track income, expenses, budgets, and savings goals."/>
+<meta name="description" content="Track your income, expenses, budgets, and savings goals — simply."/>
 <link rel="manifest" href="manifest.json"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <style>
@@ -29,13 +29,14 @@ body{
   transition:transform .3s, background .3s; z-index:50;
 }
 .brand{display:flex; align-items:center; gap:10px; padding:22px 20px;}
-.brand-icon{width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#6366f1,#3b82f6); display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px rgba(99,102,241,.35); font-size:18px;}
+.brand-icon{width:38px; height:38px; border-radius:11px; flex-shrink:0; box-shadow:0 6px 16px rgba(99,102,241,.35); overflow:hidden;}
 .brand-name{font-weight:800; font-size:18px; letter-spacing:-0.3px;}
 .nav{flex:1; padding:8px 12px; display:flex; flex-direction:column; gap:4px; overflow-y:auto;}
 .nav-item{display:flex; align-items:center; gap:12px; padding:11px 13px; border-radius:12px; font-size:14px; font-weight:500; color:var(--muted); cursor:pointer; border:none; background:transparent; text-align:left; width:100%; transition:.15s;}
 .nav-item:hover{background:var(--inner);}
 .nav-item.active{background:linear-gradient(135deg,#6366f1,#3b82f6); color:#fff; box-shadow:0 6px 16px rgba(99,102,241,.3);}
 .nav-icon{font-size:16px; width:18px; text-align:center;}
+.nav-divider{height:1px; background:var(--border); margin:8px 13px;}
 .promo{margin:14px; padding:16px; border-radius:16px; color:#fff; background:linear-gradient(135deg,#6366f1,#3b82f6); position:relative; overflow:hidden;}
 .promo::after{content:""; position:absolute; right:-15px; top:-15px; width:70px; height:70px; border-radius:50%; background:rgba(255,255,255,.12);}
 .promo p{font-size:13px; font-weight:700; margin-bottom:4px;}
@@ -44,7 +45,7 @@ body{
 .topbar{background:var(--card); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:30; display:flex; align-items:center; justify-content:space-between; padding:16px 28px; flex-wrap:wrap; gap:10px;}
 .topbar h1{font-size:19px; font-weight:800; text-transform:capitalize;}
 .topbar p{font-size:12px; color:var(--muted); margin-top:2px;}
-.topbar-actions{display:flex; align-items:center; gap:10px;}
+.topbar-actions{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
 .icon-btn{width:36px; height:36px; border-radius:50%; border:none; background:var(--inner); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:15px; color:var(--text);}
 .menu-btn{display:none; border:none; background:none; font-size:20px; cursor:pointer; color:var(--text);}
 .content{padding:24px 28px; max-width:1300px; margin:0 auto;}
@@ -55,14 +56,14 @@ body{
 .grid-3{grid-template-columns:repeat(3,1fr);}
 .grid-2{grid-template-columns:1fr 1fr;}
 @media(max-width:900px){ .grid-3, .grid-2{grid-template-columns:1fr;} }
-.card{background:var(--card); border:1px solid var(--border); border-radius:18px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,.03); transition:box-shadow .2s, background .3s;}
+.card{background:var(--card); border:1px solid var(--border); border-radius:18px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,.03); transition:box-shadow .2s, background .3s; min-width:0;}
 .card:hover{box-shadow:0 8px 20px rgba(0,0,0,.06);}
 .card-title{display:flex; align-items:center; gap:8px; font-weight:700; font-size:14px; margin-bottom:16px;}
 .card-title .ic{color:var(--indigo);}
 .stat-card{display:flex; flex-direction:column; gap:10px;}
 .stat-top{display:flex; justify-content:space-between; align-items:flex-start;}
 .stat-icon{width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:19px;}
-.tag{font-size:11px; font-weight:700; padding:4px 9px; border-radius:999px;}
+.tag{font-size:11px; font-weight:700; padding:4px 9px; border-radius:999px; white-space:nowrap;}
 .stat-label{font-size:12px; color:var(--muted);}
 .stat-value{font-size:24px; font-weight:800;}
 .stat-sub{font-size:11px; color:var(--muted);}
@@ -87,7 +88,7 @@ input:focus, select:focus, textarea:focus{box-shadow:0 0 0 3px rgba(99,102,241,.
 .exp-row{display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-radius:12px; background:var(--inner); margin-bottom:7px; transition:.15s; gap:10px;}
 .exp-left{display:flex; align-items:center; gap:10px; min-width:0;}
 .exp-icon{width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;}
-.exp-name{font-size:13.5px; font-weight:600; display:flex; align-items:center; gap:6px;}
+.exp-name{font-size:13.5px; font-weight:600; display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
 .exp-meta{font-size:11px; color:var(--muted);}
 .exp-right{display:flex; align-items:center; gap:10px;}
 .exp-amt{font-size:13.5px; font-weight:700;}
@@ -95,19 +96,22 @@ input:focus, select:focus, textarea:focus{box-shadow:0 0 0 3px rgba(99,102,241,.
 .del-btn:hover{opacity:1;}
 .empty{text-align:center; color:var(--muted); font-size:13px; padding:30px 0;}
 .chart-wrap{display:flex; align-items:center; gap:20px; flex-wrap:wrap;}
-.donut-box{position:relative; width:180px; height:180px; flex-shrink:0;}
-.donut-center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+.donut-box{position:relative; width:100%; max-width:180px; aspect-ratio:1/1; flex-shrink:0; margin:0 auto;}
+.donut-box canvas{width:100%; height:100%; display:block;}
+.donut-center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none;}
 .donut-center .t{font-size:18px; font-weight:800;}
 .donut-center .s{font-size:11px; color:var(--muted);}
 .legend{flex:1; min-width:200px;}
-.legend-row{display:flex; justify-content:space-between; align-items:center; font-size:13px; padding:5px 0;}
+.legend-row{display:flex; justify-content:space-between; align-items:center; font-size:13px; padding:5px 0; gap:8px; flex-wrap:wrap;}
 .legend-left{display:flex; align-items:center; gap:8px;}
-.dot{width:9px; height:9px; border-radius:50%;}
+.dot{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
+.chart-canvas-wrap{width:100%; height:220px; position:relative;}
+.chart-canvas-wrap canvas{width:100% !important; height:100% !important; display:block;}
 .bar-bg{height:8px; background:var(--inner); border-radius:99px; overflow:hidden;}
 .bar-fill{height:100%; background:linear-gradient(90deg,#6366f1,#3b82f6); border-radius:99px; transition:width .6s ease;}
 .goal-pct{font-size:10.5px; color:var(--muted); margin-top:4px;}
 .goal-block{margin-bottom:16px;}
-.goal-top{display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;}
+.goal-top{display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; gap:8px; flex-wrap:wrap;}
 .goal-name{font-weight:600;}
 .goal-card{background:var(--inner); border-radius:14px; padding:14px; margin-bottom:12px;}
 .goal-actions{display:flex; gap:6px; margin-top:10px; flex-wrap:wrap;}
@@ -115,7 +119,7 @@ input:focus, select:focus, textarea:focus{box-shadow:0 0 0 3px rgba(99,102,241,.
 [data-theme="dark"] .tip-box{background:var(--inner);}
 .tip-title{display:flex; align-items:center; gap:8px; font-weight:700; font-size:13.5px; margin-bottom:8px;}
 .tip-text{font-size:13px; color:var(--muted); line-height:1.5;}
-.toggle{width:46px; height:26px; border-radius:99px; background:var(--inner); border:1px solid var(--border); cursor:pointer; position:relative; transition:.2s;}
+.toggle{width:46px; height:26px; border-radius:99px; background:var(--inner); border:1px solid var(--border); cursor:pointer; position:relative; transition:.2s; flex-shrink:0;}
 .toggle.on{background:linear-gradient(135deg,#6366f1,#3b82f6);}
 .toggle-dot{position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:#fff; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2);}
 .toggle.on .toggle-dot{left:22px;}
@@ -123,10 +127,17 @@ input:focus, select:focus, textarea:focus{box-shadow:0 0 0 3px rgba(99,102,241,.
 .badge-over{font-size:10px; font-weight:700; padding:2px 7px; border-radius:99px; background:#fee2e2; color:#b91c1c;}
 .badge-recur{font-size:10px; font-weight:700; padding:2px 7px; border-radius:99px; background:#e0e7ff; color:#4338ca;}
 footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32px;}
-.month-select{padding:8px 12px; border-radius:10px; font-size:12.5px; font-weight:600;}
+.period-select{padding:8px 10px; border-radius:10px; font-size:12.5px; font-weight:600; width:auto;}
 .file-label{display:inline-block; cursor:pointer;}
-.install-banner{display:none; align-items:center; justify-content:space-between; gap:10px; background:linear-gradient(135deg,#6366f1,#3b82f6); color:#fff; border-radius:14px; padding:12px 16px; margin-bottom:16px; font-size:13px; font-weight:600;}
+.install-banner{display:none; align-items:center; justify-content:space-between; gap:10px; background:linear-gradient(135deg,#6366f1,#3b82f6); color:#fff; border-radius:14px; padding:12px 16px; margin-bottom:16px; font-size:13px; font-weight:600; flex-wrap:wrap;}
 .install-banner.show{display:flex;}
+.faq{margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid var(--border);}
+.faq:last-child{border-bottom:none; margin-bottom:0; padding-bottom:0;}
+.faq h4{font-size:13.5px; margin-bottom:6px;}
+.faq p{font-size:12.5px; color:var(--muted); line-height:1.5;}
+.income-toggle{display:flex; gap:6px; margin-bottom:14px; background:var(--inner); border-radius:12px; padding:4px;}
+.income-toggle button{flex:1; border:none; background:transparent; padding:8px; border-radius:9px; font-size:12.5px; font-weight:600; color:var(--muted); cursor:pointer;}
+.income-toggle button.active{background:var(--card); color:var(--indigo); box-shadow:0 2px 6px rgba(0,0,0,.08);}
 @media(max-width:880px){
   .sidebar{position:fixed; transform:translateX(-100%); box-shadow:0 0 40px rgba(0,0,0,.2);}
   .sidebar.open{transform:translateX(0);}
@@ -134,7 +145,6 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
   .overlay{display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:40;}
   .overlay.show{display:block;}
   .content{padding:18px;}
-  .chart-wrap{flex-direction:column;}
 }
 </style>
 </head>
@@ -145,10 +155,15 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
 
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="brand-icon">💎</div>
-      <span class="brand-name">Finlytics</span>
+      <div class="brand-icon" id="brandIcon"></div>
+      <span class="brand-name">MoneyWise</span>
     </div>
     <nav class="nav" id="nav"></nav>
+    <div class="nav-divider"></div>
+    <div style="padding:0 12px;">
+      <button class="nav-item" id="helpBtn"><span class="nav-icon">❓</span> Help</button>
+      <button class="nav-item" id="logoutBtn"><span class="nav-icon">🚪</span> Log Out</button>
+    </div>
     <div class="promo">
       <p>Track smarter.</p>
       <span>Stay on top of your money and reach your goals faster.</span>
@@ -165,14 +180,15 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
         </div>
       </div>
       <div class="topbar-actions">
-        <select class="month-select" id="monthSelect"></select>
+        <select class="period-select" id="yearSelect"></select>
+        <select class="period-select" id="monthSelect"></select>
         <button class="icon-btn" id="themeBtn">🌙</button>
       </div>
     </header>
 
     <div class="content">
       <div class="install-banner" id="installBanner">
-        <span>📲 Install Finlytics as an app for quick offline access</span>
+        <span>📲 Install MoneyWise as an app for quick offline access</span>
         <button class="btn btn-sm" id="installBtn" style="background:#fff; color:#4338ca;">Install</button>
       </div>
 
@@ -182,20 +198,20 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
           <div class="card stat-card">
             <div class="stat-top">
               <div class="stat-icon" style="background:#d1fae5;">📈</div>
-              <span class="tag" style="background:#d1fae5; color:#059669;">+12% vs last month</span>
+              <span class="tag" id="incomeTag" style="background:#d1fae5; color:#059669;">Live</span>
             </div>
             <div class="stat-label">Total Income</div>
             <div class="stat-value" id="statIncome">$0</div>
-            <div class="stat-sub">This Month</div>
+            <div class="stat-sub" id="statIncomeSub">This Month</div>
           </div>
           <div class="card stat-card">
             <div class="stat-top">
               <div class="stat-icon" style="background:#ffe4e6;">📉</div>
-              <span class="tag" style="background:#ffe4e6; color:#e11d48;">+5% vs last month</span>
+              <span class="tag" id="expensesTag" style="background:#ffe4e6; color:#e11d48;">—</span>
             </div>
             <div class="stat-label">Total Expenses</div>
             <div class="stat-value" id="statExpenses">$0</div>
-            <div class="stat-sub">This Month</div>
+            <div class="stat-sub" id="statExpensesSub">This Month</div>
           </div>
           <div class="card stat-card">
             <div class="stat-top">
@@ -211,8 +227,19 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
         <div class="grid grid-2" style="margin-bottom:16px;">
           <div class="card">
             <div class="card-title"><span class="ic">📈</span> Income</div>
-            <div class="field"><label>Hourly Wage ($)</label><input type="number" id="wageInput" value="25"></div>
-            <div class="field"><label>Hours Worked / Week</label><input type="number" id="hoursInput" value="40"></div>
+            <div class="income-toggle">
+              <button id="modeHourlyBtn" class="active">Hourly Wage</button>
+              <button id="modeMonthlyBtn">Monthly Income</button>
+            </div>
+            <div id="hourlyFields">
+              <div class="field"><label id="wageLabel">Hourly Wage</label><input type="number" id="wageInput" value="25"></div>
+              <div class="field"><label>Hours Worked / Week</label><input type="number" id="hoursInput" value="40"></div>
+            </div>
+            <div id="monthlyFields" style="display:none;">
+              <div class="field"><label id="monthlyLabel">Monthly Income</label><input type="number" id="monthlyIncomeInput" value="1083"></div>
+              <div class="field"><label>Hours Worked / Week (for proration)</label><input type="number" id="hoursInputAlt" value="40"></div>
+              <p style="font-size:11px; color:var(--muted); margin-top:-6px;">We'll back-calculate your implied hourly wage from this.</p>
+            </div>
             <div class="mini-grid">
               <div class="mini-stat"><div class="l">Weekly</div><div class="v" id="weeklyVal">$0</div></div>
               <div class="mini-stat"><div class="l">Monthly</div><div class="v" id="monthlyVal">$0</div></div>
@@ -223,16 +250,16 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
           <div class="card">
             <div class="card-title"><span class="ic">➕</span> Add Expense</div>
             <div class="row" style="margin-bottom:8px; align-items:flex-end;">
-              <div class="field" style="margin-bottom:0;"><label>Expense name</label><input type="text" id="expName" placeholder="e.g. Rent"></div>
-              <div class="field" style="margin-bottom:0; max-width:120px;"><label>Amount</label><input type="number" id="expAmt" placeholder="0.00" min="0" step="0.01"></div>
+              <div class="field" style="margin-bottom:0;"><label>Expense name</label><input type="text" id="expName" placeholder="e.g. Rent" autocomplete="off"></div>
+              <div class="field" style="margin-bottom:0; max-width:120px;"><label>Amount</label><input type="number" id="expAmt" placeholder="0.00" min="0" step="0.01" inputmode="decimal"></div>
               <div class="field" style="margin-bottom:0;"><label>Category</label><select id="expCat">
                 <option>Rent</option><option>Food</option><option>Transport</option>
                 <option>Entertainment</option><option>Internet</option><option>Shopping</option><option>Other</option>
               </select></div>
             </div>
-            <input type="text" id="expNote" placeholder="Note (optional)" style="margin-bottom:6px;">
+            <input type="text" id="expNote" placeholder="Note (optional)" style="margin-bottom:6px;" autocomplete="off">
             <label class="checkbox-row"><input type="checkbox" id="expRecurring"> Recurring monthly expense (auto-adds each new month)</label>
-            <button class="btn" id="addExpBtn" style="width:100%; margin-bottom:6px;">+ Add Expense</button>
+            <button type="button" class="btn" id="addExpBtn" style="width:100%; margin-bottom:6px;">+ Add Expense</button>
             <div id="expError" style="display:none; font-size:11.5px; color:#fb7185; margin-bottom:8px;"></div>
             <label style="font-weight:700;">RECENT EXPENSES</label>
             <div id="recentList" style="max-height:170px; overflow-y:auto; margin-top:8px;"></div>
@@ -243,7 +270,7 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
           <div class="card">
             <div class="card-title"><span class="ic">📊</span> Expenses Breakdown</div>
             <div class="chart-wrap">
-              <div class="donut-box"><canvas id="donutChart" width="180" height="180"></canvas>
+              <div class="donut-box"><canvas id="donutChart"></canvas>
                 <div class="donut-center"><div class="t" id="donutTotal">$0</div><div class="s">Total</div></div>
               </div>
               <div class="legend" id="legendBox"></div>
@@ -251,7 +278,7 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
           </div>
           <div class="card">
             <div class="card-title"><span class="ic">📈</span> Monthly Trend</div>
-            <canvas id="trendChart" width="400" height="220" style="width:100%; height:220px;"></canvas>
+            <div class="chart-canvas-wrap" id="trendWrap"><canvas id="trendChart"></canvas></div>
           </div>
         </div>
 
@@ -304,8 +331,7 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
         <div class="grid grid-2" style="margin-bottom:16px;">
           <div class="card">
             <div class="card-title"><span class="ic">📈</span> Income Settings</div>
-            <div class="field"><label>Hourly Wage ($)</label><input type="number" id="wageInput2" value="25"></div>
-            <div class="field"><label>Hours Worked / Week</label><input type="number" id="hoursInput2" value="40"></div>
+            <p style="font-size:12px; color:var(--muted); margin-bottom:10px;">Manage this on the Dashboard's Income card — changes sync everywhere automatically.</p>
             <div class="mini-grid">
               <div class="mini-stat"><div class="l">Weekly</div><div class="v" id="weeklyVal2">$0</div></div>
               <div class="mini-stat"><div class="l">Monthly</div><div class="v" id="monthlyVal2">$0</div></div>
@@ -336,7 +362,7 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
           <div class="card-title"><span class="ic">🎯</span> Savings Goals</div>
           <div class="row" style="margin-bottom:16px;">
             <input type="text" id="goalName" placeholder="Goal name (e.g. New Laptop)">
-            <input type="number" id="goalTarget" placeholder="Target $" style="max-width:120px;">
+            <input type="number" id="goalTarget" placeholder="Target amount" style="max-width:140px;">
             <button class="btn" id="addGoalBtn" style="flex:0 0 auto;">+ New Goal</button>
           </div>
           <div id="goalsList"></div>
@@ -347,7 +373,7 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
       <section class="page" id="page-reports">
         <div class="card" style="margin-bottom:16px;">
           <div class="card-title"><span class="ic">📊</span> Income vs Expenses</div>
-          <canvas id="trendChart2" width="400" height="260" style="width:100%; height:260px;"></canvas>
+          <div class="chart-canvas-wrap" style="height:260px;" id="trendWrap2"><canvas id="trendChart2"></canvas></div>
         </div>
         <div class="card" style="margin-bottom:16px;">
           <div class="card-title"><span class="ic">🔮</span> Spending Forecast</div>
@@ -363,14 +389,14 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
       <section class="page" id="page-converter">
         <div class="card" style="max-width:520px;">
           <div class="card-title"><span class="ic">💱</span> Currency Converter</div>
-          <p style="font-size:12px; color:var(--muted); margin-bottom:16px;">Live exchange rates via the European Central Bank (Frankfurter API). Rates refresh automatically and are cached for offline use.</p>
+          <p style="font-size:12px; color:var(--muted); margin-bottom:16px;">Live exchange rates. Rates are cached for offline use. Requires an internet connection for live rates.</p>
           <div class="field"><label>Amount</label><input type="number" id="convAmount" value="100"></div>
           <div class="row" style="align-items:flex-end; margin-bottom:6px;">
             <div class="field" style="margin-bottom:0;"><label>From</label><select id="convFrom"></select></div>
-            <button class="btn-ghost btn" id="swapBtn" style="flex:0 0 auto; align-self:center; margin-bottom:0;" title="Swap">⇄</button>
+            <button type="button" class="btn-ghost btn" id="swapBtn" style="flex:0 0 auto; align-self:center; margin-bottom:0;" title="Swap">⇄</button>
             <div class="field" style="margin-bottom:0;"><label>To</label><select id="convTo"></select></div>
           </div>
-          <button class="btn" id="convertBtn" style="width:100%; margin-top:14px;">Convert</button>
+          <button type="button" class="btn" id="convertBtn" style="width:100%; margin-top:14px;">Convert</button>
           <div id="convResultBox" style="margin-top:18px; display:none;">
             <div class="mini-stat" style="text-align:left; padding:16px;">
               <div class="l" id="convRateLine">—</div>
@@ -379,6 +405,20 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
             </div>
           </div>
           <div id="convError" style="display:none; margin-top:14px; font-size:12px; color:#fb7185;"></div>
+        </div>
+      </section>
+
+      <!-- HELP -->
+      <section class="page" id="page-help">
+        <div class="card" style="max-width:640px;">
+          <div class="card-title"><span class="ic">❓</span> Help &amp; FAQ</div>
+          <div class="faq"><h4>How is my data saved?</h4><p>Everything is stored locally in your browser (localStorage). Nothing is sent to a server, so your data stays private to this device. Clearing your browser data will reset the app.</p></div>
+          <div class="faq"><h4>How does income work?</h4><p>Use the Income card on the Dashboard. Switch between "Hourly Wage" mode (wage × hours/week) or "Monthly Income" mode if you're paid a flat salary — we'll calculate the rest automatically.</p></div>
+          <div class="faq"><h4>What's a recurring expense?</h4><p>Check the "Recurring" box when adding an expense (like rent or subscriptions) and it will automatically appear in every new month going forward, so you don't have to re-enter it.</p></div>
+          <div class="faq"><h4>How do category budget limits work?</h4><p>Set a limit per category in Budget Planner. When your spending in that category gets close to (85%+) or exceeds the limit, you'll see a warning badge on the Dashboard and Reports pages.</p></div>
+          <div class="faq"><h4>Does the currency converter need internet?</h4><p>Yes — it fetches live exchange rates from a public API. If you're offline, it will use the last successfully fetched rate for that currency pair if available.</p></div>
+          <div class="faq"><h4>How do I switch months or years?</h4><p>Use the Year and Month dropdowns in the top bar. Recurring expenses automatically carry forward when you move to a new month.</p></div>
+          <div class="faq"><h4>What does "Log Out" do?</h4><p>Since MoneyWise doesn't use accounts, Log Out simply clears your locally saved data and resets the app to a fresh start. Use it if you want to start over or hand the device to someone else.</p></div>
         </div>
       </section>
 
@@ -400,14 +440,14 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
           <div style="border-top:1px solid var(--border); padding:14px 0 0;">
             <label>Currency</label>
             <select id="currencySelect"></select>
-            <div style="font-size:11px; color:var(--muted); margin-top:6px;">All amounts on the dashboard (income, expenses, goals) are shown in this currency.</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:6px;">All amounts — income, expenses, goals, charts — update instantly to this currency's symbol and format.</div>
           </div>
         </div>
       </section>
 
     </div>
 
-    <footer>© 2026 Finlytics. Built for tracking smarter, saving faster.</footer>
+    <footer>© 2026 MoneyWise. Built for tracking smarter, saving faster.</footer>
   </main>
 </div>
 
@@ -438,14 +478,11 @@ const CURRENCIES = [
 
 /* ---------- STATE ---------- */
 function defaultMonthKey(){ return '2026-06'; }
-function loadState(){
-  try{
-    const raw = localStorage.getItem('finlytics_state');
-    if(raw) return JSON.parse(raw);
-  }catch(e){}
+function freshState(){
   const m = defaultMonthKey();
   return {
-    wage:25, hours:40, dark:false, currency:'USD', currentMonth:m,
+    wage:25, hours:40, incomeMode:'hourly', monthlyIncome:1083,
+    dark:false, currency:'USD', currentMonth:m,
     budgets:{},
     expenses:[
       {id:1,name:'Rent',amount:900,cat:'Rent',date:'Jun 30',note:'',recurring:true, month:m},
@@ -461,8 +498,15 @@ function loadState(){
     nextId:6
   };
 }
+function loadState(){
+  try{
+    const raw = localStorage.getItem('moneywise_state');
+    if(raw) return Object.assign(freshState(), JSON.parse(raw));
+  }catch(e){}
+  return freshState();
+}
 let state = loadState();
-function save(){ localStorage.setItem('finlytics_state', JSON.stringify(state)); }
+function save(){ try{ localStorage.setItem('moneywise_state', JSON.stringify(state)); }catch(e){} }
 
 function fmt(n){
   if(n===undefined || n===null || isNaN(n)) n = 0;
@@ -474,48 +518,74 @@ function fmt(n){
     return sign+cur.code+' '+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
   }
 }
-function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+function currencyCode(){ return state.currency || 'USD'; }
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=String(s); return d.innerHTML; }
 
-/* ---------- MONTHS ---------- */
-function generateMonthList(){
-  const base = new Date(2026,5,1); // June 2026
-  const months = [];
-  for(let i=-6;i<=2;i++){
-    const d = new Date(base.getFullYear(), base.getMonth()+i, 1);
-    const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
-    months.push({key, label:d.toLocaleString('default',{month:'short',year:'numeric'}), shortDay:d});
-  }
-  return months;
+/* ---------- BRAND ICON (inline SVG, no external asset needed) ---------- */
+document.getElementById('brandIcon').innerHTML = `
+<svg viewBox="0 0 48 48" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="ar" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#a7f3d0"/><stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="12" fill="url(#bg)"/>
+  <path d="M10 30 L18 22 L24 27 L38 13" stroke="url(#ar)" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M30 13 L38 13 L38 21" stroke="url(#ar)" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="24" cy="34" r="2.6" fill="#fff"/>
+</svg>`;
+
+/* ---------- YEAR / MONTH SELECTORS ---------- */
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function monthKey(year, monthIdx0){ return year+'-'+String(monthIdx0+1).padStart(2,'0'); }
+function parseMonthKey(key){ const [y,m] = key.split('-').map(Number); return {year:y, monthIdx0:m-1}; }
+function availableYears(){ return [2025,2026,2027]; }
+
+function populatePeriodSelects(){
+  const {year, monthIdx0} = parseMonthKey(state.currentMonth);
+  const yearSel = document.getElementById('yearSelect');
+  yearSel.innerHTML = availableYears().map(y=>`<option value="${y}" ${y===year?'selected':''}>${y}</option>`).join('');
+  const monthSel = document.getElementById('monthSelect');
+  monthSel.innerHTML = MONTH_NAMES.map((m,i)=>`<option value="${i}" ${i===monthIdx0?'selected':''}>${m}</option>`).join('');
+  yearSel.onchange = ()=> changePeriod(parseInt(yearSel.value), parseInt(monthSel.value));
+  monthSel.onchange = ()=> changePeriod(parseInt(yearSel.value), parseInt(monthSel.value));
 }
-function monthsExpenses(monthKey){
-  return state.expenses.filter(e=> e.month===monthKey);
+function changePeriod(year, monthIdx0){
+  state.currentMonth = monthKey(year, monthIdx0);
+  ensureRecurringForMonth(state.currentMonth);
+  save(); renderAll();
 }
-function ensureRecurringForMonth(monthKey){
-  const allMonths = generateMonthList().map(m=>m.key);
-  const idx = allMonths.indexOf(monthKey);
-  if(idx<=0) return;
-  const prevKey = allMonths[idx-1];
+function monthsExpenses(key){ return state.expenses.filter(e=> e.month===key); }
+function prevMonthKey(key){
+  const {year, monthIdx0} = parseMonthKey(key);
+  const d = new Date(year, monthIdx0-1, 1);
+  return monthKey(d.getFullYear(), d.getMonth());
+}
+function ensureRecurringForMonth(key){
+  const prevKey = prevMonthKey(key);
   const prevRecurring = state.expenses.filter(e=>e.month===prevKey && e.recurring);
-  const currentNames = new Set(monthsExpenses(monthKey).map(e=>e.name+'|'+e.cat));
+  if(!prevRecurring.length) return;
+  const currentSet = new Set(monthsExpenses(key).map(e=>e.name+'|'+e.cat));
   let added = false;
   prevRecurring.forEach(e=>{
-    if(!currentNames.has(e.name+'|'+e.cat)){
-      state.expenses.push({id:state.nextId++, name:e.name, amount:e.amount, cat:e.cat, date:'auto', note:e.note, recurring:true, month:monthKey});
+    if(!currentSet.has(e.name+'|'+e.cat)){
+      state.expenses.push({id:state.nextId++, name:e.name, amount:e.amount, cat:e.cat, date:'auto-added', note:e.note, recurring:true, month:key});
       added = true;
     }
   });
   if(added) save();
 }
-
-function populateMonthSelect(){
-  const sel = document.getElementById('monthSelect');
-  const months = generateMonthList();
-  sel.innerHTML = months.map(m=>`<option value="${m.key}" ${m.key===state.currentMonth?'selected':''}>${m.label}</option>`).join('');
-  sel.onchange = ()=>{
-    state.currentMonth = sel.value;
-    ensureRecurringForMonth(state.currentMonth);
-    save(); renderAll();
-  };
+function lastNMonthKeys(n){
+  const {year, monthIdx0} = parseMonthKey(state.currentMonth);
+  const out = [];
+  for(let i=n-1;i>=0;i--){
+    const d = new Date(year, monthIdx0-i, 1);
+    out.push({key: monthKey(d.getFullYear(), d.getMonth()), label: MONTH_NAMES[d.getMonth()]});
+  }
+  return out;
 }
 
 /* ---------- NAV ---------- */
@@ -531,12 +601,25 @@ NAV.forEach(item=>{
 function goTo(id){
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active', b.dataset.page===id));
   document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active', p.id==='page-'+id));
-  document.getElementById('pageTitle').textContent = NAV.find(n=>n.id===id).label;
+  const labelMap = {help:'Help & FAQ'};
+  document.getElementById('pageTitle').textContent = labelMap[id] || (NAV.find(n=>n.id===id)||{label:id}).label;
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('overlay').classList.remove('show');
-  if(id==='reports') drawTrendChart('trendChart2');
+  requestAnimationFrame(()=>{
+    if(id==='reports') drawTrendChart('trendChart2');
+    if(id==='dashboard') drawTrendChart('trendChart');
+  });
 }
 document.querySelectorAll('[data-goto]').forEach(b=> b.onclick = ()=> goTo(b.dataset.goto));
+document.getElementById('helpBtn').onclick = ()=> goTo('help');
+document.getElementById('logoutBtn').onclick = ()=>{
+  if(confirm('This clears your locally saved data on this device and resets MoneyWise to a fresh start. Continue?')){
+    localStorage.removeItem('moneywise_state');
+    state = freshState();
+    save();
+    location.reload();
+  }
+};
 document.getElementById('menuBtn').onclick = ()=>{ document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('show'); };
 document.getElementById('overlay').onclick = ()=>{ document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); };
 
@@ -550,39 +633,88 @@ function applyTheme(){
 document.getElementById('themeBtn').onclick = ()=>{ state.dark = !state.dark; save(); applyTheme(); };
 document.getElementById('settingsToggle').onclick = ()=>{ state.dark = !state.dark; save(); applyTheme(); };
 
-/* ---------- INCOME ---------- */
+/* ---------- INCOME (hourly <-> monthly two-way sync) ---------- */
+let syncingIncome = false;
 function getIncome(){
+  if(state.incomeMode === 'monthly'){
+    const monthly = parseFloat(state.monthlyIncome)||0;
+    const weekly = monthly/4.33;
+    return { weekly, monthly, yearly: weekly*52 };
+  }
   const weekly = (parseFloat(state.wage)||0) * (parseFloat(state.hours)||0);
   return { weekly, monthly: weekly*4.33, yearly: weekly*52 };
 }
-function syncWageInputs(){
-  ['wageInput','wageInput2'].forEach(id=> document.getElementById(id).value = state.wage);
-  ['hoursInput','hoursInput2'].forEach(id=> document.getElementById(id).value = state.hours);
+function setIncomeMode(mode){
+  state.incomeMode = mode;
+  document.getElementById('modeHourlyBtn').classList.toggle('active', mode==='hourly');
+  document.getElementById('modeMonthlyBtn').classList.toggle('active', mode==='monthly');
+  document.getElementById('hourlyFields').style.display = mode==='hourly' ? '' : 'none';
+  document.getElementById('monthlyFields').style.display = mode==='monthly' ? '' : 'none';
+  save(); renderAll();
 }
-['wageInput','wageInput2'].forEach(id=>{
-  document.getElementById(id).addEventListener('input', e=>{ state.wage = e.target.value; save(); syncWageInputs(); renderAll(); });
+document.getElementById('modeHourlyBtn').onclick = ()=> setIncomeMode('hourly');
+document.getElementById('modeMonthlyBtn').onclick = ()=> setIncomeMode('monthly');
+
+function syncWageInputs(){
+  document.getElementById('wageInput').value = state.wage;
+  document.getElementById('hoursInput').value = state.hours;
+  document.getElementById('hoursInputAlt').value = state.hours;
+  document.getElementById('monthlyIncomeInput').value = Math.round(state.monthlyIncome*100)/100;
+  const cur = currencyCode();
+  document.getElementById('wageLabel').textContent = `Hourly Wage (${cur})`;
+  document.getElementById('monthlyLabel').textContent = `Monthly Income (${cur})`;
+}
+document.getElementById('wageInput').addEventListener('input', e=>{
+  state.wage = e.target.value; save(); renderAll();
 });
-['hoursInput','hoursInput2'].forEach(id=>{
-  document.getElementById(id).addEventListener('input', e=>{ state.hours = e.target.value; save(); syncWageInputs(); renderAll(); });
+document.getElementById('hoursInput').addEventListener('input', e=>{
+  state.hours = e.target.value; document.getElementById('hoursInputAlt').value = e.target.value; save(); renderAll();
+});
+document.getElementById('hoursInputAlt').addEventListener('input', e=>{
+  state.hours = e.target.value; document.getElementById('hoursInput').value = e.target.value;
+  const monthly = parseFloat(state.monthlyIncome)||0;
+  const weekly = monthly/4.33;
+  const hrs = parseFloat(state.hours)||0;
+  state.wage = hrs>0 ? +(weekly/hrs).toFixed(2) : 0;
+  save(); renderAll();
+});
+document.getElementById('monthlyIncomeInput').addEventListener('input', e=>{
+  state.monthlyIncome = e.target.value;
+  const monthly = parseFloat(state.monthlyIncome)||0;
+  const weekly = monthly/4.33;
+  const hrs = parseFloat(state.hours)||0;
+  state.wage = hrs>0 ? +(weekly/hrs).toFixed(2) : 0;
+  save(); renderAll();
 });
 
 /* ---------- EXPENSES ---------- */
 function addExpense(){
-  const name = document.getElementById('expName').value.trim();
-  const amt = parseFloat(document.getElementById('expAmt').value);
-  const cat = document.getElementById('expCat').value;
-  const note = document.getElementById('expNote').value.trim();
-  const recurring = document.getElementById('expRecurring').checked;
-  if(!name || !amt || amt<=0) return;
+  const nameEl = document.getElementById('expName');
+  const amtEl = document.getElementById('expAmt');
+  const catEl = document.getElementById('expCat');
+  const noteEl = document.getElementById('expNote');
+  const recEl = document.getElementById('expRecurring');
+  const errBox = document.getElementById('expError');
+
+  const name = (nameEl.value||'').trim();
+  const amt = parseFloat(amtEl.value);
+  const cat = catEl.value;
+  const note = (noteEl.value||'').trim();
+  const recurring = recEl.checked;
+
+  errBox.style.display = 'none';
+  if(!name){ errBox.textContent = 'Please enter an expense name.'; errBox.style.display='block'; nameEl.focus(); return; }
+  if(!amt || isNaN(amt) || amt<=0){ errBox.textContent = 'Please enter a valid amount greater than 0.'; errBox.style.display='block'; amtEl.focus(); return; }
+
   state.expenses.unshift({id:state.nextId++, name, amount:amt, cat, date:'today', note, recurring, month:state.currentMonth});
-  document.getElementById('expName').value='';
-  document.getElementById('expAmt').value='';
-  document.getElementById('expNote').value='';
-  document.getElementById('expRecurring').checked=false;
+  nameEl.value=''; amtEl.value=''; noteEl.value=''; recEl.checked=false;
   save(); renderAll();
+  nameEl.focus();
 }
-document.getElementById('addExpBtn').onclick = addExpense;
-document.getElementById('expAmt').addEventListener('keypress', e=>{ if(e.key==='Enter') addExpense(); });
+document.getElementById('addExpBtn').addEventListener('click', addExpense);
+['expName','expAmt','expNote'].forEach(id=>{
+  document.getElementById(id).addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addExpense(); } });
+});
 function deleteExpense(id){ state.expenses = state.expenses.filter(e=>e.id!==id); save(); renderAll(); }
 
 function expenseRowHTML(e, detailed){
@@ -610,7 +742,7 @@ function renderBudgetLimitsForm(){
     const meta = CATS[c];
     const val = state.budgets[c] || '';
     return `<div class="field" style="display:flex; align-items:center; gap:10px;">
-      <span style="width:120px; font-size:13px;">${meta.icon} ${c}</span>
+      <span style="width:120px; font-size:13px; flex-shrink:0;">${meta.icon} ${c}</span>
       <input type="number" data-cat="${c}" class="budget-limit-input" placeholder="No limit" value="${val}" style="margin-bottom:0;">
     </div>`;
   }).join('');
@@ -633,7 +765,7 @@ function addGoal(){
   document.getElementById('goalTarget').value='';
   save(); renderAll();
 }
-document.getElementById('addGoalBtn').onclick = addGoal;
+document.getElementById('addGoalBtn').addEventListener('click', addGoal);
 function addToGoal(id, amount){ const g = state.goals.find(g=>g.id===id); if(g) g.saved = Math.min(g.saved+amount, g.target); save(); renderAll(); }
 function deleteGoal(id){ state.goals = state.goals.filter(g=>g.id!==id); save(); renderAll(); }
 function goalBarHTML(g){
@@ -646,7 +778,7 @@ function goalBarHTML(g){
 }
 
 /* ---------- CSV EXPORT / IMPORT ---------- */
-document.getElementById('exportBtn').onclick = ()=>{
+document.getElementById('exportBtn').addEventListener('click', ()=>{
   const rows = monthsExpenses(state.currentMonth);
   let csv = 'name,amount,category,note,recurring,month\n';
   rows.forEach(e=>{
@@ -655,9 +787,9 @@ document.getElementById('exportBtn').onclick = ()=>{
   const blob = new Blob([csv], {type:'text/csv'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `finlytics-${state.currentMonth}.csv`;
+  a.href = url; a.download = `moneywise-${state.currentMonth}.csv`;
   a.click(); URL.revokeObjectURL(url);
-};
+});
 document.getElementById('importFile').addEventListener('change', (e)=>{
   const file = e.target.files[0];
   if(!file) return;
@@ -686,12 +818,18 @@ document.getElementById('importFile').addEventListener('change', (e)=>{
   reader.readAsText(file);
 });
 
-/* ---------- CHARTS ---------- */
+/* ---------- CHARTS (resize-safe via ResizeObserver) ---------- */
 function drawDonut(byCat, total){
+  const box = document.querySelector('.donut-box');
   const c = document.getElementById('donutChart');
+  const size = Math.max(box.clientWidth, 100);
+  const dpr = window.devicePixelRatio || 1;
+  c.width = size*dpr; c.height = size*dpr;
   const ctx = c.getContext('2d');
-  ctx.clearRect(0,0,c.width,c.height);
-  const cx=90, cy=90, rOuter=85, rInner=55;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,size,size);
+  const cx=size/2, cy=size/2, rOuter=size*0.47, rInner=size*0.30;
   if(total<=0){
     ctx.beginPath(); ctx.arc(cx,cy,rOuter,0,Math.PI*2);
     ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--inner');
@@ -715,16 +853,20 @@ function roundRectTop(ctx,x,y,w,h,r){
 }
 function drawTrendChart(canvasId){
   const canvas = document.getElementById(canvasId);
+  const wrap = canvas.parentElement;
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  if(w<=0 || h<=0) return;
   const dpr = window.devicePixelRatio || 1;
-  const w = canvas.clientWidth, h = canvas.clientHeight || 220;
   canvas.width = w*dpr; canvas.height = h*dpr;
-  const ctx = canvas.getContext('2d'); ctx.scale(dpr,dpr); ctx.clearRect(0,0,w,h);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr,dpr); ctx.clearRect(0,0,w,h);
 
-  const months = generateMonthList().slice(-6);
+  const months = lastNMonthKeys(6);
   const income = getIncome();
   const data = months.map(m=>{
     const exp = monthsExpenses(m.key).reduce((a,b)=>a+b.amount,0);
-    return {m:m.label.split(' ')[0], inc: income.monthly, exp};
+    return {m:m.label, inc: income.monthly, exp};
   });
   const maxVal = Math.max(...data.map(d=>Math.max(d.inc,d.exp)), 100) * 1.15;
   const padL=44, padB=26, padT=14, padR=10;
@@ -738,7 +880,7 @@ function drawTrendChart(canvasId){
   for(let i=0;i<=4;i++){
     const y = padT + chartH - (chartH/4)*i;
     ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
-    ctx.fillText('$'+Math.round((maxVal/4)*i), 2, y+4);
+    ctx.fillText(Math.round((maxVal/4)*i).toLocaleString(), 2, y+4);
   }
   data.forEach((d,i)=>{
     const gx = padL + i*groupW;
@@ -754,6 +896,33 @@ function drawTrendChart(canvasId){
   ctx.textAlign='left';
 }
 
+/* Resize-safe redraws */
+const ro = new ResizeObserver(()=>{
+  if(document.getElementById('page-dashboard').classList.contains('active')){
+    const byCat = computeByCat(monthsExpenses(state.currentMonth));
+    drawDonut(byCat.list, byCat.total);
+    drawTrendChart('trendChart');
+  }
+  if(document.getElementById('page-reports').classList.contains('active')) drawTrendChart('trendChart2');
+});
+window.addEventListener('load', ()=>{
+  ro.observe(document.querySelector('.donut-box'));
+  ro.observe(document.getElementById('trendWrap'));
+  ro.observe(document.getElementById('trendWrap2'));
+});
+window.addEventListener('resize', ()=>{
+  drawTrendChart('trendChart');
+  if(document.getElementById('page-reports').classList.contains('active')) drawTrendChart('trendChart2');
+});
+
+function computeByCat(monthExpenses){
+  const map = {};
+  monthExpenses.forEach(e=> map[e.cat] = (map[e.cat]||0)+e.amount);
+  const list = Object.entries(map).map(([name,value])=>({name,value,color:(CATS[name]||CATS.Other).color})).sort((a,b)=>b.value-a.value);
+  const total = monthExpenses.reduce((a,b)=>a+b.amount,0);
+  return {list, total};
+}
+
 /* ---------- MAIN RENDER ---------- */
 function renderAll(){
   const monthExpenses = monthsExpenses(state.currentMonth);
@@ -763,12 +932,34 @@ function renderAll(){
   const usage = income.monthly>0 ? Math.min((totalExp/income.monthly)*100,100) : 0;
   const savingsRate = income.monthly>0 ? (balance/income.monthly)*100 : 0;
 
+  // previous month comparison (real, not fake)
+  const prevKey = prevMonthKey(state.currentMonth);
+  const prevExp = monthsExpenses(prevKey).reduce((a,b)=>a+b.amount,0);
+  const expensesTagEl = document.getElementById('expensesTag');
+  if(prevExp>0){
+    const change = ((totalExp-prevExp)/prevExp)*100;
+    expensesTagEl.textContent = (change>=0?'+':'') + change.toFixed(0) + '% vs last month';
+    expensesTagEl.style.background = change>0 ? '#ffe4e6' : '#d1fae5';
+    expensesTagEl.style.color = change>0 ? '#e11d48' : '#059669';
+  } else {
+    expensesTagEl.textContent = totalExp>0 ? 'First month tracked' : 'No data yet';
+    expensesTagEl.style.background = '#f1f5f9'; expensesTagEl.style.color = '#64748b';
+  }
+  document.getElementById('incomeTag').textContent = income.monthly>0 ? 'Live calculation' : 'Set your income';
+
   document.getElementById('statIncome').textContent = fmt(income.monthly);
   document.getElementById('statExpenses').textContent = fmt(totalExp);
+  document.getElementById('statExpenses').style.color = balance<0 ? '#fb7185' : '';
   document.getElementById('statBalance').textContent = fmt(balance);
   document.getElementById('statBalance').style.color = balance<0 ? '#fb7185' : '';
-  document.getElementById('statSavedTag').textContent = savingsRate.toFixed(0)+'% saved';
+  document.getElementById('statSavedTag').textContent = (income.monthly>0 ? savingsRate.toFixed(0) : 0)+'% saved';
 
+  const {year, monthIdx0} = parseMonthKey(state.currentMonth);
+  const periodLabel = MONTH_NAMES[monthIdx0]+' '+year;
+  document.getElementById('statIncomeSub').textContent = periodLabel;
+  document.getElementById('statExpensesSub').textContent = periodLabel;
+
+  syncWageInputs();
   document.getElementById('weeklyVal').textContent = fmt(income.weekly);
   document.getElementById('monthlyVal').textContent = fmt(income.monthly);
   document.getElementById('yearlyVal').textContent = fmt(income.yearly);
@@ -794,13 +985,10 @@ function renderAll(){
   document.getElementById('plannerExpenses').textContent = fmt(totalExp);
   renderBudgetLimitsForm();
 
-  const map = {};
-  monthExpenses.forEach(e=> map[e.cat] = (map[e.cat]||0)+e.amount);
-  const byCat = Object.entries(map).map(([name,value])=>({name,value,color:(CATS[name]||CATS.Other).color})).sort((a,b)=>b.value-a.value);
-
-  drawDonut(byCat, totalExp);
+  const byCat = computeByCat(monthExpenses);
+  drawDonut(byCat.list, byCat.total);
   document.getElementById('donutTotal').textContent = fmt(totalExp);
-  document.getElementById('legendBox').innerHTML = byCat.length ? byCat.map(c=>{
+  document.getElementById('legendBox').innerHTML = byCat.list.length ? byCat.list.map(c=>{
     const limit = state.budgets[c.name];
     let badge = '';
     if(limit){
@@ -813,7 +1001,7 @@ function renderAll(){
     </div>`;
   }).join('') : '<div class="empty">Add expenses to see breakdown</div>';
 
-  document.getElementById('categoryBars').innerHTML = byCat.length ? byCat.map(c=>{
+  document.getElementById('categoryBars').innerHTML = byCat.list.length ? byCat.list.map(c=>{
     const pct = (c.value/totalExp)*100;
     const meta = CATS[c.name]||CATS.Other;
     const limit = state.budgets[c.name];
@@ -823,7 +1011,7 @@ function renderAll(){
       else if(c.value >= limit*0.85) badge = '<span class="badge-warn">near '+fmt(limit)+' limit</span>';
     }
     return `<div style="margin-bottom:14px;">
-      <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px;">
+      <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; gap:8px; flex-wrap:wrap;">
         <span>${meta.icon} ${c.name} ${badge}</span><b>${fmt(c.value)} <span style="color:var(--muted); font-weight:400;">(${pct.toFixed(0)}%)</span></b>
       </div>
       <div class="bar-bg"><div class="bar-fill" style="width:${pct}%; background:${meta.color};"></div></div>
@@ -847,6 +1035,8 @@ function renderAll(){
     tipText.textContent = usage<70
       ? `You're using ${usage.toFixed(0)}% of your income on expenses — keep it under 70% to stay on track. You're doing great!`
       : `You're using ${usage.toFixed(0)}% of your income on expenses. Try trimming discretionary spend to build savings faster.`;
+  } else {
+    tipText.textContent = 'Add your income above to start getting personalized tips.';
   }
   document.getElementById('tipBar').style.width = usage+'%';
 
@@ -857,16 +1047,12 @@ function renderAll(){
 
 function renderForecast(monthExpenses, income, totalExp){
   const box = document.getElementById('forecastBox');
-  const today = state.currentMonth === defaultMonthKey() ? 30 : 15; // demo anchor: assume mid-month for non-current months
+  if(totalExp<=0){ box.innerHTML = '<div class="empty">Add some expenses this month to see a forecast.</div>'; return; }
+  const today = state.currentMonth === defaultMonthKey() ? 30 : 15;
   const daysInMonth = 30;
   const dailyRate = totalExp / Math.max(today,1);
   const projected = dailyRate * daysInMonth;
   const diff = projected - income.monthly;
-
-  if(totalExp<=0){
-    box.innerHTML = '<div class="empty">Add some expenses this month to see a forecast.</div>';
-    return;
-  }
   const trendNote = diff > 0
     ? `At your current daily spending pace, you're projected to spend ${fmt(projected)} this month — about ${fmt(diff)} over your monthly income.`
     : `At your current daily spending pace, you're projected to spend ${fmt(projected)} this month, staying ${fmt(Math.abs(diff))} under your income. Nice pace.`;
@@ -880,10 +1066,6 @@ function renderForecast(monthExpenses, income, totalExp){
 }
 
 document.getElementById('searchInput').addEventListener('input', renderAll);
-window.addEventListener('resize', ()=>{
-  drawTrendChart('trendChart');
-  if(document.getElementById('page-reports').classList.contains('active')) drawTrendChart('trendChart2');
-});
 
 /* ---------- CURRENCY SELECT ---------- */
 function populateCurrencySelect(){
@@ -895,8 +1077,8 @@ function populateCurrencySelect(){
   sel.onchange = ()=>{ state.currency = sel.value; save(); renderAll(); };
 }
 
-/* ---------- CONVERTER ---------- */
-const CONV_CACHE_KEY = 'finlytics_rate_cache';
+/* ---------- CONVERTER (with provider fallback) ---------- */
+const CONV_CACHE_KEY = 'moneywise_rate_cache';
 const CONV_CACHE_TTL = 1000*60*60*4;
 function initConverter(){
   const fromSel = document.getElementById('convFrom');
@@ -904,9 +1086,9 @@ function initConverter(){
   const opts = CURRENCIES.map(c=>`<option value="${c.code}">${c.code} — ${c.label}</option>`).join('');
   fromSel.innerHTML = opts; toSel.innerHTML = opts;
   fromSel.value = 'USD'; toSel.value = 'NGN';
-  document.getElementById('swapBtn').onclick = ()=>{ const f=fromSel.value; fromSel.value=toSel.value; toSel.value=f; };
-  document.getElementById('convertBtn').onclick = runConversion;
-  document.getElementById('convAmount').addEventListener('keypress', e=>{ if(e.key==='Enter') runConversion(); });
+  document.getElementById('swapBtn').addEventListener('click', ()=>{ const f=fromSel.value; fromSel.value=toSel.value; toSel.value=f; });
+  document.getElementById('convertBtn').addEventListener('click', runConversion);
+  document.getElementById('convAmount').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); runConversion(); } });
 }
 function getCachedRate(from, to){
   try{
@@ -926,6 +1108,22 @@ function setCachedRate(from, to, rate){
     localStorage.setItem(CONV_CACHE_KEY, JSON.stringify(cache));
   }catch(e){}
 }
+async function fetchRateFrankfurter(from, to){
+  const res = await fetch(`https://api.frankfurter.app/latest?from=${from}&to=${to}`);
+  if(!res.ok) throw new Error('frankfurter failed');
+  const data = await res.json();
+  const rate = data.rates && data.rates[to];
+  if(!rate) throw new Error('no rate from frankfurter');
+  return {rate, date: data.date};
+}
+async function fetchRateExchangerateHost(from, to){
+  const res = await fetch(`https://open.er-api.com/v6/latest/${from}`);
+  if(!res.ok) throw new Error('er-api failed');
+  const data = await res.json();
+  const rate = data.rates && data.rates[to];
+  if(!rate) throw new Error('no rate from er-api');
+  return {rate, date: data.time_last_update_utc ? new Date(data.time_last_update_utc).toISOString().slice(0,10) : 'today'};
+}
 async function runConversion(){
   const amount = parseFloat(document.getElementById('convAmount').value);
   const from = document.getElementById('convFrom').value;
@@ -933,22 +1131,28 @@ async function runConversion(){
   const errBox = document.getElementById('convError');
   const btn = document.getElementById('convertBtn');
   errBox.style.display = 'none';
-  if(!amount || amount<=0){ errBox.textContent = 'Enter a valid amount.'; errBox.style.display='block'; return; }
+  if(!amount || isNaN(amount) || amount<=0){ errBox.textContent = 'Enter a valid amount.'; errBox.style.display='block'; return; }
   if(from===to){ showConvResult(amount, 1, from, to, 'Same currency', true); return; }
   btn.textContent = 'Converting...'; btn.disabled = true;
-  try{
-    const res = await fetch(`https://api.frankfurter.app/latest?from=${from}&to=${to}`);
-    if(!res.ok) throw new Error('bad response');
-    const data = await res.json();
-    const rate = data.rates[to];
-    if(!rate) throw new Error('no rate');
-    setCachedRate(from, to, rate);
-    showConvResult(amount, rate, from, to, data.date, false);
-  }catch(e){
+  let result = null;
+  try{ result = await fetchRateFrankfurter(from, to); }
+  catch(e1){
+    try{ result = await fetchRateExchangerateHost(from, to); }
+    catch(e2){ result = null; }
+  }
+  if(result){
+    setCachedRate(from, to, result.rate);
+    showConvResult(amount, result.rate, from, to, result.date, false);
+  }else{
     const cached = getCachedRate(from, to);
     if(cached){ showConvResult(amount, cached.rate, from, to, new Date(cached.time).toLocaleString(), true); }
-    else{ errBox.textContent = 'Could not reach exchange rate service, and no cached rate is available. Try again once online.'; errBox.style.display='block'; document.getElementById('convResultBox').style.display='none'; }
-  }finally{ btn.textContent = 'Convert'; btn.disabled = false; }
+    else{
+      errBox.textContent = 'Could not reach the exchange rate service right now, and no cached rate is saved yet for this pair. This requires an internet connection — please check your connection and try again.';
+      errBox.style.display = 'block';
+      document.getElementById('convResultBox').style.display = 'none';
+    }
+  }
+  btn.textContent = 'Convert'; btn.disabled = false;
 }
 function showConvResult(amount, rate, from, to, dateLabel, stale){
   const converted = amount * rate;
@@ -966,26 +1170,25 @@ window.addEventListener('beforeinstallprompt', (e)=>{
   deferredInstallPrompt = e;
   document.getElementById('installBanner').classList.add('show');
 });
-document.getElementById('installBtn').onclick = async ()=>{
+document.getElementById('installBtn').addEventListener('click', async ()=>{
   if(!deferredInstallPrompt) return;
   deferredInstallPrompt.prompt();
   await deferredInstallPrompt.userChoice;
   deferredInstallPrompt = null;
   document.getElementById('installBanner').classList.remove('show');
-};
+});
 window.addEventListener('appinstalled', ()=>{ document.getElementById('installBanner').classList.remove('show'); });
-
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('sw.js').catch(()=>{ /* sw.js not present yet — fine in dev/preview */ });
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
   });
 }
 
 /* ---------- INIT ---------- */
-syncWageInputs();
+populatePeriodSelects();
 populateCurrencySelect();
-populateMonthSelect();
 ensureRecurringForMonth(state.currentMonth);
+setIncomeMode(state.incomeMode || 'hourly');
 applyTheme();
 initConverter();
 </script>

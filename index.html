@@ -179,7 +179,7 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
         <button class="menu-btn" id="menuBtn">☰</button>
         <div>
           <h1 id="pageTitle">Dashboard</h1>
-          <p>Welcome back — here's your financial overview.</p>
+          <p id="welcomeLine">Welcome back — here's your financial overview.</p>
         </div>
       </div>
       <div class="topbar-actions">
@@ -191,7 +191,7 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
 
     <div class="content">
       <div class="install-banner" id="installBanner">
-        <span>📲 Install MoneyWise as an app for quick offline access</span>
+        <span>📲 Install OlaPurse as an app for quick offline access</span>
         <button class="btn btn-sm" id="installBtn" style="background:#fff; color:#4338ca;">Install</button>
       </div>
 
@@ -430,7 +430,12 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
       <section class="page" id="page-settings">
         <div class="card" style="max-width:460px;">
           <div class="card-title"><span class="ic">⚙️</span> Settings</div>
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0;">
+          <div style="padding:10px 0;">
+            <label>Your Name</label>
+            <input type="text" id="userNameInput" placeholder="e.g. Sam">
+            <div style="font-size:11px; color:var(--muted); margin-top:6px;">Used to personalize your welcome message. Stored only on this device.</div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-top:1px solid var(--border);">
             <div>
               <div style="font-size:13.5px; font-weight:600;">Theme</div>
               <div style="font-size:12px; color:var(--muted);">Switch between light and dark mode</div>
@@ -495,7 +500,7 @@ function emptyState(){
   const m = defaultMonthKey();
   return {
     wage:0, hours:0, incomeMode:'hourly', monthlyIncome:0,
-    dark:false, currency:'USD', currentMonth:m,
+    dark:false, currency:'USD', currentMonth:m, userName:'',
     budgets:{}, favorites:{},
     expenses:[],
     goals:[],
@@ -1241,6 +1246,31 @@ if('serviceWorker' in navigator){
   });
 }
 
+/* ---------- USER NAME ---------- */
+function updateWelcomeLine(){
+  const line = document.getElementById('welcomeLine');
+  const name = (state.userName||'').trim();
+  line.textContent = name ? `Welcome back, ${name} — here's your financial overview.` : `Welcome — here's your financial overview.`;
+}
+function initUserName(){
+  const input = document.getElementById('userNameInput');
+  input.value = state.userName || '';
+  input.addEventListener('input', ()=>{
+    state.userName = input.value;
+    save();
+    updateWelcomeLine();
+  });
+  if(!state.userName){
+    const entered = prompt("Welcome! What's your name? (used only to personalize your dashboard, stored on this device)");
+    if(entered && entered.trim()){
+      state.userName = entered.trim();
+      save();
+      input.value = state.userName;
+    }
+  }
+  updateWelcomeLine();
+}
+
 /* ---------- INIT ---------- */
 populatePeriodSelects();
 populateCurrencySelect();
@@ -1249,6 +1279,7 @@ setIncomeMode(state.incomeMode || 'hourly');
 renderFavChips();
 applyTheme();
 initConverter();
+initUserName();
 </script>
 </body>
 </html>

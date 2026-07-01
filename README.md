@@ -1,6 +1,6 @@
-# MoneyWise
+# Purseful
 
-MoneyWise is a personal finance dashboard that helps you track income, manage expenses, set savings goals, and stay on budget — all in one clean, responsive interface.
+Pursefule is a personal finance dashboard that helps you track income, manage expenses, set savings goals, and stay on budget — all in one clean, responsive interface.
 
 Built with vanilla JavaScript (no frameworks, no build step), it features:
 - Real-time income and expense calculations (hourly wage or flat monthly income)
@@ -12,6 +12,6 @@ Built with vanilla JavaScript (no frameworks, no build step), it features:
 - Installable as a Progressive Web App (PWA) for offline access
 - Light and dark mode
 
-**Live demo:** https://moneywise-tracker.netlify.app
+**Live demo:** https://Purseful.netlify.app
 
 Currently a portfolio project demonstrating frontend engineering, data visualization, and UX design skills.

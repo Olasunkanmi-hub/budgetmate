@@ -6,8 +6,12 @@
 <title>OlaPurse — Personal Finance Dashboard</title>
 <meta name="theme-color" content="#6366f1"/>
 <meta name="description" content="Track your income, expenses, budgets, and savings goals — simply."/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="OlaPurse"/>
 <link rel="manifest" href="manifest.json"/>
-<link rel="apple-touch-icon" href="icon-192.png"/>
+<link rel="apple-touch-icon" href="apple-touch-icon.png"/>
 <style>
 :root{
   --bg:#f8fafc; --card:#ffffff; --border:#e2e8f0; --text:#0f172a; --muted:#64748b;
@@ -93,6 +97,20 @@ input:focus, select:focus, textarea:focus{box-shadow:0 0 0 3px rgba(99,102,241,.
 .exp-amt{font-size:13.5px; font-weight:700;}
 .del-btn{background:none; border:none; color:#fb7185; cursor:pointer; font-size:14px; opacity:.7;}
 .del-btn:hover{opacity:1;}
+.edit-btn{background:none; border:none; color:var(--muted); cursor:pointer; font-size:14px; opacity:.7;}
+.edit-btn:hover{opacity:1; color:var(--indigo);}
+.modal-overlay{display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:100; align-items:center; justify-content:center; padding:18px;}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--card); border:1px solid var(--border); border-radius:18px; padding:22px; width:100%; max-width:420px; box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.modal h3{font-size:16px; font-weight:800; margin-bottom:16px;}
+.modal-actions{display:flex; gap:8px; margin-top:6px;}
+.onboard{border-radius:18px; padding:20px; margin-bottom:16px; color:#fff; background:linear-gradient(135deg,#6366f1,#3b82f6); position:relative;}
+.onboard h3{font-size:16px; font-weight:800; margin-bottom:6px;}
+.onboard p{font-size:13px; opacity:.95; line-height:1.5; margin-bottom:14px; max-width:640px;}
+.onboard .onboard-actions{display:flex; gap:8px; flex-wrap:wrap;}
+.onboard .btn-white{background:#fff; color:#4338ca;}
+.onboard .btn-clear{background:rgba(255,255,255,.18); color:#fff; box-shadow:none;}
+.onboard-close{position:absolute; top:12px; right:14px; background:none; border:none; color:#fff; font-size:18px; cursor:pointer; opacity:.85;}
 .empty{text-align:center; color:var(--muted); font-size:13px; padding:30px 0;}
 .chart-wrap{display:flex; align-items:center; gap:20px; flex-wrap:wrap;}
 .donut-box{position:relative; width:100%; max-width:180px; aspect-ratio:1/1; flex-shrink:0; margin:0 auto;}
@@ -156,7 +174,27 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
   .overlay.show{display:block;}
   .content{padding:18px;}
 }
+.account-btn{padding:0; overflow:hidden; font-weight:800;}
+.avatar{width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;}
+.avatar-initial{width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:14px; background:linear-gradient(135deg,#6366f1,#3b82f6);}
+.profile-row{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:9px 10px; border:1px solid var(--border); border-radius:12px; margin-bottom:8px;}
+.profile-row.active{border-color:var(--indigo); background:var(--indigo-soft);}
+.profile-row .p-left{display:flex; align-items:center; gap:9px; min-width:0;}
+.profile-row .p-name{font-weight:700; font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.profile-row .p-sub{font-size:11px; color:var(--muted);}
+.p-avatar{width:30px; height:30px; border-radius:50%; overflow:hidden; flex:0 0 auto;}
+.nw-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 0; border-bottom:1px solid var(--border);}
+.nw-tag{font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:20px;}
+.nw-asset{background:rgba(16,185,129,.15); color:#059669;}
+.nw-liab{background:rgba(244,63,94,.15); color:#e11d48;}
+.insight-tile{flex:1; min-width:130px; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px;}
+.insight-tile .l{font-size:11.5px; color:var(--muted); margin-bottom:4px;}
+.insight-tile .v{font-size:20px; font-weight:800;}
+.insight-tile .d{font-size:11.5px; margin-top:3px;}
+.toast{position:fixed; left:50%; bottom:26px; transform:translateX(-50%); background:#111827; color:#fff; padding:11px 18px; border-radius:12px; font-size:13px; z-index:200; opacity:0; transition:opacity .25s; pointer-events:none;}
+.toast.show{opacity:.96;}
 </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body data-theme="light">
 
@@ -193,6 +231,7 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
         <select class="period-select" id="yearSelect" aria-label="Select year"></select>
         <select class="period-select" id="monthSelect" aria-label="Select month"></select>
         <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode">🌙</button>
+        <button class="icon-btn account-btn" id="accountBtn" aria-label="Account and profiles"></button>
       </div>
     </header>
 
@@ -204,6 +243,7 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
 
       <!-- DASHBOARD -->
       <section class="page active" id="page-dashboard">
+        <div id="onboardBox"></div>
         <div class="grid grid-3" style="margin-bottom:16px;">
           <div class="card stat-card">
             <div class="stat-top">
@@ -234,6 +274,14 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
           </div>
         </div>
 
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-title" style="justify-content:space-between; display:flex; align-items:center;">
+            <span><span class="ic">💡</span> Insights</span>
+            <button class="btn btn-sm btn-ghost" id="shareSummaryBtn" style="flex:0 0 auto;">📤 Share summary</button>
+          </div>
+          <div class="row" id="insightsRow" style="gap:12px; flex-wrap:wrap;"></div>
+        </div>
+
         <div class="grid grid-2" style="margin-bottom:16px;">
           <div class="card">
             <div class="card-title"><span class="ic">📈</span> Income</div>
@@ -242,14 +290,15 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
               <button id="modeMonthlyBtn">Monthly Income</button>
             </div>
             <div id="hourlyFields">
-              <div class="field"><label id="wageLabel">Hourly Wage</label><input type="number" id="wageInput" value="25"></div>
-              <div class="field"><label>Hours Worked / Week</label><input type="number" id="hoursInput" value="40"></div>
+              <div class="field"><label id="wageLabel">Hourly Wage</label><input type="number" id="wageInput" value="0"></div>
+              <div class="field"><label>Hours Worked / Week</label><input type="number" id="hoursInput" value="0"></div>
             </div>
             <div id="monthlyFields" style="display:none;">
-              <div class="field"><label id="monthlyLabel">Monthly Income</label><input type="number" id="monthlyIncomeInput" value="1083"></div>
-              <div class="field"><label>Hours Worked / Week (for proration)</label><input type="number" id="hoursInputAlt" value="40"></div>
+              <div class="field"><label id="monthlyLabel">Monthly Income</label><input type="number" id="monthlyIncomeInput" value="0"></div>
+              <div class="field"><label>Hours Worked / Week (for proration)</label><input type="number" id="hoursInputAlt" value="0"></div>
               <p style="font-size:11px; color:var(--muted); margin-top:-6px;">We'll back-calculate your implied hourly wage from this.</p>
             </div>
+            <label class="checkbox-row"><input type="checkbox" id="incomeRecurring" checked> Same income each month (carries into future months)</label>
             <div class="mini-grid">
               <div class="mini-stat"><div class="l">Weekly</div><div class="v" id="weeklyVal">$0</div></div>
               <div class="mini-stat"><div class="l">Monthly</div><div class="v" id="monthlyVal">$0</div></div>
@@ -380,6 +429,30 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
         </div>
       </section>
 
+      <!-- NET WORTH -->
+      <section class="page" id="page-networth">
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-title"><span class="ic">💰</span> Net Worth</div>
+          <div style="font-size:12px; color:var(--muted); margin-bottom:14px;">Track what you own (assets) and what you owe (liabilities). Net worth updates automatically. Balances are saved to this profile on this device.</div>
+          <div class="grid grid-3">
+            <div class="stat-card"><div class="stat-label">Assets</div><div class="stat-value" id="nwAssets" style="color:#10b981;">$0</div></div>
+            <div class="stat-card"><div class="stat-label">Liabilities</div><div class="stat-value" id="nwLiab" style="color:#f43f5e;">$0</div></div>
+            <div class="stat-card"><div class="stat-label">Net Worth</div><div class="stat-value" id="nwTotal">$0</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="ic">➕</span> Add Account</div>
+          <div class="row" style="margin-bottom:6px;">
+            <input type="text" id="acctName" placeholder="Account name (e.g. Savings, Car loan)">
+            <select id="acctType" style="max-width:150px;"><option value="asset">Asset (own)</option><option value="liability">Liability (owe)</option></select>
+            <input type="number" id="acctBalance" placeholder="Balance" style="max-width:140px;">
+            <button class="btn" id="addAcctBtn" style="flex:0 0 auto;">+ Add</button>
+          </div>
+          <div id="acctError" style="display:none; font-size:11.5px; color:#fb7185; margin:4px 0 8px;"></div>
+          <div id="acctList" style="margin-top:8px;"></div>
+        </div>
+      </section>
+
       <!-- REPORTS -->
       <section class="page" id="page-reports">
         <div class="card" style="margin-bottom:16px;">
@@ -467,7 +540,7 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
               <div style="font-size:13.5px; font-weight:600;">Theme</div>
               <div style="font-size:12px; color:var(--muted);">Switch between light and dark mode</div>
             </div>
-            <div class="toggle" id="settingsToggle"><div class="toggle-dot"></div></div>
+            <div class="toggle" id="settingsToggle" role="switch" tabindex="0" aria-label="Toggle dark mode"><div class="toggle-dot"></div></div>
           </div>
           <div style="border-top:1px solid var(--border); padding:14px 0;">
             <div style="font-size:13.5px; font-weight:600; margin-bottom:4px;">Data Storage</div>
@@ -478,6 +551,30 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
             <select id="currencySelect"></select>
             <div style="font-size:11px; color:var(--muted); margin-top:6px;">All amounts — income, expenses, goals, charts — update instantly to this currency's symbol and format.</div>
           </div>
+          <div style="border-top:1px solid var(--border); padding:14px 0 0; margin-top:14px;">
+            <div style="font-size:13.5px; font-weight:600; margin-bottom:4px;">Backup &amp; Restore</div>
+            <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">Save all your data to a file you can keep, or restore it on another device or browser. This is your safety net — your data otherwise lives only in this browser.</div>
+            <div class="row">
+              <button class="btn btn-ghost" id="backupBtn">⬇️ Download backup</button>
+              <label class="btn btn-ghost file-label" style="text-align:center;">⬆️ Restore from backup
+                <input type="file" id="restoreFile" accept="application/json,.json" style="display:none;">
+              </label>
+            </div>
+            <div id="backupMsg" style="font-size:12px; color:var(--muted); margin-top:10px;"></div>
+          </div>
+          <div style="border-top:1px solid var(--border); padding:14px 0 0; margin-top:14px;">
+            <div style="font-size:13.5px; font-weight:600; margin-bottom:4px;">Smarter Assistant (optional)</div>
+            <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">Leave this blank to use the built-in on-device assistant. If you set up a backend endpoint (see the deployment notes), paste its URL here and the Assistant will use a real AI model. Your endpoint keeps your API key secret.</div>
+            <input type="text" id="aiEndpointInput" placeholder="/.netlify/functions/assistant" autocomplete="off">
+          </div>
+          <div style="border-top:1px solid var(--border); padding:14px 0 0; margin-top:14px;">
+            <div style="font-size:13.5px; font-weight:600; margin-bottom:8px;">Data</div>
+            <div class="row">
+              <button class="btn btn-ghost" id="loadSampleBtn">✨ Load sample data</button>
+              <button class="btn btn-danger" id="startFreshBtn">🧹 Start fresh (erase all)</button>
+            </div>
+            <div style="font-size:11px; color:var(--muted); margin-top:10px;">"Start fresh" erases everything on this device and cannot be undone — download a backup first if unsure.</div>
+          </div>
         </div>
       </section>
 
@@ -486,6 +583,62 @@ footer{text-align:center; font-size:12px; color:var(--muted); padding:24px 0 32p
     <footer>© 2026 OlaPurse. Built for tracking smarter, saving faster.</footer>
   </main>
 </div>
+
+<!-- EDIT TRANSACTION MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Edit transaction">
+    <h3>Edit transaction</h3>
+    <div class="field"><label>Name</label><input type="text" id="editName" autocomplete="off"></div>
+    <div class="row" style="align-items:flex-end;">
+      <div class="field" style="max-width:140px;"><label>Amount</label><input type="number" id="editAmt" min="0" step="0.01" inputmode="decimal"></div>
+      <div class="field"><label>Category</label><select id="editCat"></select></div>
+    </div>
+    <div class="field"><label>Note (optional)</label><input type="text" id="editNote" autocomplete="off"></div>
+    <label class="checkbox-row"><input type="checkbox" id="editRecurring"> Recurring monthly expense</label>
+    <div id="editError" style="display:none; font-size:11.5px; color:#fb7185; margin-bottom:8px;"></div>
+    <div class="modal-actions">
+      <button class="btn" id="editSaveBtn" style="flex:1;">Save changes</button>
+      <button class="btn btn-ghost" id="editCancelBtn" style="flex:0 0 auto;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ACCOUNT / PROFILES MODAL -->
+<div class="modal-overlay" id="accountModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Account and profiles">
+    <h3>Account</h3>
+    <div id="accountIdentity" style="margin-bottom:6px;"></div>
+    <div style="font-weight:800; font-size:11px; letter-spacing:.04em; color:var(--muted); margin:14px 0 8px;">PROFILES</div>
+    <div id="profileList"></div>
+    <div class="row" style="margin-top:6px;">
+      <input type="text" id="newProfileName" placeholder="Add a profile (e.g. Business)" autocomplete="off">
+      <button class="btn btn-ghost" id="addProfileBtn" style="flex:0 0 auto;">Add</button>
+    </div>
+    <div id="googleBtnWrap" style="margin-top:16px; display:flex; justify-content:center;"></div>
+    <div id="googleHint" style="font-size:11px; color:var(--muted); margin-top:8px; text-align:center;"></div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn btn-ghost" id="signOutBtn" style="flex:1; display:none;">Sign out</button>
+      <button class="btn" id="accountCloseBtn" style="flex:1;">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE SUMMARY MODAL -->
+<div class="modal-overlay" id="shareModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Share summary" style="max-width:460px;">
+    <h3>Monthly summary</h3>
+    <div style="border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:12px;">
+      <canvas id="shareCanvas" width="900" height="500" style="width:100%; height:auto; display:block;"></canvas>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="shareDownloadBtn" style="flex:1;">⬇️ Download image</button>
+      <button class="btn btn-ghost" id="shareCopyBtn" style="flex:1;">📋 Copy text</button>
+      <button class="btn btn-ghost" id="shareCloseBtn" style="flex:0 0 auto;">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
 /* ---------- CONFIG ---------- */
@@ -506,11 +659,18 @@ const DEFAULT_FAVORITES = {
 };
 /* Shared sparkle icon (currentColor adapts: white when nav active, muted otherwise, green in the tip card) */
 const SPARK_ICON = '<svg class="spark-ic" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2.8c.55 3.7 2.5 5.65 6.2 6.2-3.7.55-5.65 2.5-6.2 6.2-.55-3.7-2.5-5.65-6.2-6.2 3.7-.55 5.65-2.5 6.2-6.2Z" fill="currentColor"/><path d="M18.6 14.2c.26 1.7 1.15 2.6 2.85 2.85-1.7.26-2.6 1.15-2.85 2.85-.26-1.7-1.15-2.6-2.85-2.85 1.7-.26 2.6-1.15 2.85-2.85Z" fill="currentColor"/></svg>';
+/* Paste your Google OAuth Client ID here to enable "Sign in with Google".
+   Get one free at console.cloud.google.com -> Credentials -> OAuth client ID (Web).
+   Add your site URLs (e.g. https://olapurse.netlify.app) as Authorized JavaScript origins.
+   Leave blank to keep local profiles only. */
+const GOOGLE_CLIENT_ID = '1027423940099-degajfme1jpg3blu697mm25kn5le26pp.apps.googleusercontent.com';
+
 const NAV = [
   {id:'dashboard', label:'Dashboard', icon:'🏠'},
   {id:'transactions', label:'Transactions', icon:'🔁'},
   {id:'planner', label:'Budget Planner', icon:'🐷'},
   {id:'goals', label:'Goals', icon:'🎯'},
+  {id:'networth', label:'Net Worth', icon:'💰'},
   {id:'reports', label:'Reports', icon:'📊'},
   {id:'converter', label:'Converter', icon:'💱'},
   {id:'assistant', label:'Assistant', icon:SPARK_ICON},
@@ -531,30 +691,74 @@ function defaultMonthKey(){
 }
 function emptyState(){
   const m = defaultMonthKey();
-  return { wage:0, hours:0, incomeMode:'hourly', monthlyIncome:0, dark:false, currency:'USD', currentMonth:m, userName:'', budgets:{}, favorites:{}, expenses:[], goals:[], nextId:1 };
+  return { incomeByMonth:{}, dark:false, currency:'USD', currentMonth:m, userName:'', aiEndpoint:'', onboarded:false, budgets:{}, favorites:{}, expenses:[], goals:[], accounts:[], nextId:1 };
 }
-function freshState(){
+/* Sample data — only loaded when the user chooses "Load sample data". */
+function sampleState(){
   const m = defaultMonthKey();
-  return {
-    wage:25, hours:40, incomeMode:'hourly', monthlyIncome:1083,
-    dark:false, currency:'USD', currentMonth:m, budgets:{}, favorites:{},
-    expenses:[
-      {id:1,name:'Rent',amount:900,cat:'Rent',date:'recent',note:'',recurring:true, month:m},
-      {id:2,name:'Groceries',amount:250,cat:'Food',date:'recent',note:'',recurring:false, month:m},
-      {id:3,name:'Gas & Transit',amount:120,cat:'Transport',date:'recent',note:'',recurring:true, month:m},
-      {id:4,name:'Internet Bill',amount:60,cat:'Internet',date:'recent',note:'',recurring:true, month:m},
-      {id:5,name:'Streaming',amount:35,cat:'Entertainment',date:'recent',note:'',recurring:true, month:m}
-    ],
-    goals:[ {id:1,name:'Emergency Fund',saved:1250,target:3000}, {id:2,name:'Vacation',saved:800,target:2000} ],
-    nextId:6
-  };
+  const s = emptyState();
+  s.onboarded = true;
+  s.incomeByMonth = { [m]: {incomeMode:'hourly', wage:25, hours:40, monthlyIncome:0, recurring:true} };
+  s.expenses = [
+    {id:1,name:'Rent',amount:900,cat:'Rent',date:'recent',note:'',recurring:true, month:m},
+    {id:2,name:'Groceries',amount:250,cat:'Food',date:'recent',note:'',recurring:false, month:m},
+    {id:3,name:'Gas & Transit',amount:120,cat:'Transport',date:'recent',note:'',recurring:true, month:m},
+    {id:4,name:'Internet Bill',amount:60,cat:'Internet',date:'recent',note:'',recurring:true, month:m},
+    {id:5,name:'Streaming',amount:35,cat:'Entertainment',date:'recent',note:'',recurring:true, month:m}
+  ];
+  s.goals = [ {id:1,name:'Emergency Fund',saved:1250,target:3000}, {id:2,name:'Vacation',saved:800,target:2000} ];
+  s.accounts = [ {id:1,name:'Checking',type:'asset',balance:2400}, {id:2,name:'Savings',type:'asset',balance:5200}, {id:3,name:'Credit Card',type:'liability',balance:650} ];
+  s.nextId = 6;
+  return s;
+}
+
+/* ---------- PROFILES (local switching, plus optional Google identity) ---------- */
+const PROFILES_KEY = 'olapurse_profiles', ACTIVE_KEY = 'olapurse_active';
+function pStateKey(id){ return 'olapurse_state__' + id; }
+function loadProfiles(){ try{ return JSON.parse(localStorage.getItem(PROFILES_KEY)) || []; }catch(e){ return []; } }
+function saveProfiles(list){ try{ localStorage.setItem(PROFILES_KEY, JSON.stringify(list)); }catch(e){} }
+function activeProfileId(){ return localStorage.getItem(ACTIVE_KEY); }
+function setActiveProfile(id){ try{ localStorage.setItem(ACTIVE_KEY, id); }catch(e){} }
+function activeProfile(){ const l = loadProfiles(); return l.find(p=>p.id===activeProfileId()) || l[0] || null; }
+function ensureProfiles(){
+  let list = loadProfiles();
+  if(!list.length){
+    list = [{ id:'personal', label:'Personal', name:'', email:'', picture:'', type:'local' }];
+    saveProfiles(list); setActiveProfile('personal');
+    const legacy = localStorage.getItem('olapurse_state'); // migrate an older single-profile save
+    if(legacy){ try{ localStorage.setItem(pStateKey('personal'), legacy); }catch(e){} }
+  }
+  if(!activeProfileId() || !list.find(p=>p.id===activeProfileId())) setActiveProfile(list[0].id);
+  return list;
+}
+function migrateState(merged){
+  if(!merged.incomeByMonth || typeof merged.incomeByMonth !== 'object') merged.incomeByMonth = {};
+  if(!Array.isArray(merged.accounts)) merged.accounts = [];
+  if(Object.keys(merged.incomeByMonth).length === 0 && (merged.wage || merged.monthlyIncome)){
+    merged.incomeByMonth[merged.currentMonth] = {
+      incomeMode: merged.incomeMode || 'hourly',
+      wage: parseFloat(merged.wage)||0, hours: parseFloat(merged.hours)||0,
+      monthlyIncome: parseFloat(merged.monthlyIncome)||0, recurring: true
+    };
+    merged.onboarded = true;
+  }
+  return merged;
 }
 function loadState(){
-  try{ const raw = localStorage.getItem('olapurse_state'); if(raw) return Object.assign(freshState(), JSON.parse(raw)); }catch(e){}
-  return freshState();
+  ensureProfiles();
+  try{
+    const raw = localStorage.getItem(pStateKey(activeProfileId()));
+    if(raw) return migrateState(Object.assign(emptyState(), JSON.parse(raw)));
+  }catch(e){}
+  return emptyState();   // new profile starts empty (with onboarding), not with demo data
 }
 let state = loadState();
-function save(){ try{ localStorage.setItem('olapurse_state', JSON.stringify(state)); }catch(e){} }
+function save(){ try{ localStorage.setItem(pStateKey(activeProfileId()), JSON.stringify(state)); }catch(e){} }
+function downloadJSON(filename, obj){
+  const blob = new Blob([JSON.stringify(obj, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
+}
 
 function fmt(n){
   if(n===undefined || n===null || isNaN(n)) n = 0;
@@ -572,10 +776,15 @@ const BRAND_SVG = `
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient>
     <linearGradient id="ar" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#a7f3d0"/><stop offset="100%" stop-color="#34d399"/></linearGradient>
   </defs>
-  <rect width="48" height="48" rx="12" fill="url(#bg)"/>
-  <path d="M10 30 L18 22 L24 27 L38 13" stroke="url(#ar)" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M30 13 L38 13 L38 21" stroke="url(#ar)" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="24" cy="34" r="2.6" fill="#fff"/>
+  <rect width="48" height="48" rx="13" fill="url(#bg)"/>
+  <g fill="#ffffff" opacity="0.26">
+    <rect x="10.5" y="27" width="5" height="10.5" rx="1.6"/>
+    <rect x="21.5" y="22" width="5" height="15.5" rx="1.6"/>
+    <rect x="32.5" y="16" width="5" height="21.5" rx="1.6"/>
+  </g>
+  <path d="M11 29 L19.5 23 L26 27 L37 15" stroke="url(#ar)" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M30 14.5 L38 14 L37.5 22" stroke="url(#ar)" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="19.5" cy="23" r="2" fill="#fff"/>
 </svg>`;
 document.getElementById('brandIcon').innerHTML = BRAND_SVG;
 (function setFavicon(){
@@ -607,7 +816,7 @@ function populatePeriodSelects(){
   yearSel.onchange = ()=> changePeriod(parseInt(yearSel.value), parseInt(monthSel.value));
   monthSel.onchange = ()=> changePeriod(parseInt(yearSel.value), parseInt(monthSel.value));
 }
-function changePeriod(year, monthIdx0){ state.currentMonth = monthKey(year, monthIdx0); ensureRecurringForMonth(state.currentMonth); save(); renderAll(); }
+function changePeriod(year, monthIdx0){ state.currentMonth = monthKey(year, monthIdx0); ensureRecurringForMonth(state.currentMonth); ensureRecurringIncomeForMonth(state.currentMonth); save(); renderAll(); }
 function monthsExpenses(key){ return state.expenses.filter(e=> e.month===key); }
 function prevMonthKey(key){ const {year, monthIdx0} = parseMonthKey(key); const d = new Date(year, monthIdx0-1, 1); return monthKey(d.getFullYear(), d.getMonth()); }
 function ensureRecurringForMonth(key){
@@ -673,19 +882,32 @@ function applyTheme(){
   document.body.setAttribute('data-theme', state.dark ? 'dark' : 'light');
   document.getElementById('themeBtn').textContent = state.dark ? '☀️' : '🌙';
   document.getElementById('settingsToggle').classList.toggle('on', state.dark);
+  document.getElementById('settingsToggle').setAttribute('aria-checked', state.dark);
   renderAll();
 }
 document.getElementById('themeBtn').onclick = ()=>{ state.dark = !state.dark; save(); applyTheme(); };
 document.getElementById('settingsToggle').onclick = ()=>{ state.dark = !state.dark; save(); applyTheme(); };
+document.getElementById('settingsToggle').addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); state.dark = !state.dark; save(); applyTheme(); } });
 
-/* ---------- INCOME (hourly <-> monthly two-way sync) ---------- */
-function getIncome(){
-  if(state.incomeMode === 'monthly'){ const monthly = parseFloat(state.monthlyIncome)||0; const weekly = monthly/4.33; return { weekly, monthly, yearly: weekly*52 }; }
-  const weekly = (parseFloat(state.wage)||0) * (parseFloat(state.hours)||0);
+/* ---------- INCOME (per-month, hourly <-> monthly two-way sync, optional recurring) ---------- */
+function incomeGet(key){ return (state.incomeByMonth && state.incomeByMonth[key]) || {incomeMode:'hourly', wage:0, hours:0, monthlyIncome:0, recurring:true}; }
+function incomeSet(key){ if(!state.incomeByMonth) state.incomeByMonth={}; if(!state.incomeByMonth[key]) state.incomeByMonth[key]={incomeMode:'hourly', wage:0, hours:0, monthlyIncome:0, recurring:true}; return state.incomeByMonth[key]; }
+function computeIncome(e){
+  if(e.incomeMode === 'monthly'){ const monthly = parseFloat(e.monthlyIncome)||0; const weekly = monthly/4.33; return { weekly, monthly, yearly: weekly*52 }; }
+  const weekly = (parseFloat(e.wage)||0) * (parseFloat(e.hours)||0);
   return { weekly, monthly: weekly*4.33, yearly: weekly*52 };
 }
+function getIncome(){ return computeIncome(incomeGet(state.currentMonth)); }
+function getIncomeForMonth(key){ return computeIncome(incomeGet(key)); }
+/* Carry income into a new month if the previous month's income is marked recurring. */
+function ensureRecurringIncomeForMonth(key){
+  if(state.incomeByMonth && state.incomeByMonth[key]) return;
+  const prev = state.incomeByMonth ? state.incomeByMonth[prevMonthKey(key)] : null;
+  if(prev && prev.recurring){ incomeSet(key); Object.assign(state.incomeByMonth[key], prev); save(); }
+}
 function setIncomeMode(mode){
-  state.incomeMode = mode;
+  const e = incomeSet(state.currentMonth);
+  e.incomeMode = mode;
   document.getElementById('modeHourlyBtn').classList.toggle('active', mode==='hourly');
   document.getElementById('modeMonthlyBtn').classList.toggle('active', mode==='monthly');
   document.getElementById('hourlyFields').style.display = mode==='hourly' ? '' : 'none';
@@ -695,26 +917,33 @@ function setIncomeMode(mode){
 document.getElementById('modeHourlyBtn').onclick = ()=> setIncomeMode('hourly');
 document.getElementById('modeMonthlyBtn').onclick = ()=> setIncomeMode('monthly');
 function syncWageInputs(){
-  document.getElementById('wageInput').value = state.wage;
-  document.getElementById('hoursInput').value = state.hours;
-  document.getElementById('hoursInputAlt').value = state.hours;
-  document.getElementById('monthlyIncomeInput').value = Math.round(state.monthlyIncome*100)/100;
+  const e = incomeGet(state.currentMonth);
+  const ae = document.activeElement;
+  const setVal = (id, val)=>{ const el = document.getElementById(id); if(el && el !== ae) el.value = val; };
+  setVal('wageInput', e.wage);
+  setVal('hoursInput', e.hours);
+  setVal('hoursInputAlt', e.hours);
+  setVal('monthlyIncomeInput', Math.round((parseFloat(e.monthlyIncome)||0)*100)/100);
+  const rec = document.getElementById('incomeRecurring'); if(rec && rec !== ae) rec.checked = !!e.recurring;
   const cur = currencyCode();
   document.getElementById('wageLabel').textContent = `Hourly Wage (${cur})`;
   document.getElementById('monthlyLabel').textContent = `Monthly Income (${cur})`;
 }
-document.getElementById('wageInput').addEventListener('input', e=>{ state.wage = e.target.value; save(); renderAll(); });
-document.getElementById('hoursInput').addEventListener('input', e=>{ state.hours = e.target.value; document.getElementById('hoursInputAlt').value = e.target.value; save(); renderAll(); });
-document.getElementById('hoursInputAlt').addEventListener('input', e=>{
-  state.hours = e.target.value; document.getElementById('hoursInput').value = e.target.value;
-  const monthly = parseFloat(state.monthlyIncome)||0; const weekly = monthly/4.33; const hrs = parseFloat(state.hours)||0;
-  state.wage = hrs>0 ? +(weekly/hrs).toFixed(2) : 0; save(); renderAll();
+document.getElementById('wageInput').addEventListener('input', ev=>{ incomeSet(state.currentMonth).wage = ev.target.value; save(); renderAll(); });
+document.getElementById('hoursInput').addEventListener('input', ev=>{ incomeSet(state.currentMonth).hours = ev.target.value; document.getElementById('hoursInputAlt').value = ev.target.value; save(); renderAll(); });
+document.getElementById('hoursInputAlt').addEventListener('input', ev=>{
+  const e = incomeSet(state.currentMonth);
+  e.hours = ev.target.value; document.getElementById('hoursInput').value = ev.target.value;
+  const monthly = parseFloat(e.monthlyIncome)||0; const weekly = monthly/4.33; const hrs = parseFloat(e.hours)||0;
+  e.wage = hrs>0 ? +(weekly/hrs).toFixed(2) : 0; save(); renderAll();
 });
-document.getElementById('monthlyIncomeInput').addEventListener('input', e=>{
-  state.monthlyIncome = e.target.value;
-  const monthly = parseFloat(state.monthlyIncome)||0; const weekly = monthly/4.33; const hrs = parseFloat(state.hours)||0;
-  state.wage = hrs>0 ? +(weekly/hrs).toFixed(2) : 0; save(); renderAll();
+document.getElementById('monthlyIncomeInput').addEventListener('input', ev=>{
+  const e = incomeSet(state.currentMonth);
+  e.monthlyIncome = ev.target.value;
+  const monthly = parseFloat(e.monthlyIncome)||0; const weekly = monthly/4.33; const hrs = parseFloat(e.hours)||0;
+  e.wage = hrs>0 ? +(weekly/hrs).toFixed(2) : 0; save(); renderAll();
 });
+document.getElementById('incomeRecurring').addEventListener('change', ev=>{ incomeSet(state.currentMonth).recurring = ev.target.checked; save(); });
 
 /* ---------- EXPENSES ---------- */
 function getFavoritesFor(cat){
@@ -769,10 +998,40 @@ function expenseRowHTML(e, detailed){
     </div>
     <div class="exp-right">
       <span class="exp-amt">${fmt(e.amount)}</span>
-      <button class="del-btn" onclick="deleteExpense(${e.id})" aria-label="Delete expense">🗑</button>
+      <button class="edit-btn" onclick="openEditExpense(${e.id})" aria-label="Edit expense" title="Edit">✎</button>
+      <button class="del-btn" onclick="deleteExpense(${e.id})" aria-label="Delete expense" title="Delete">🗑</button>
     </div>
   </div>`;
 }
+/* ---- Edit an existing transaction ---- */
+let editingExpenseId = null;
+function openEditExpense(id){
+  const e = state.expenses.find(x=>x.id===id); if(!e) return;
+  editingExpenseId = id;
+  document.getElementById('editName').value = e.name;
+  document.getElementById('editAmt').value = e.amount;
+  const catSel = document.getElementById('editCat');
+  catSel.innerHTML = CAT_NAMES.map(c=>`<option ${c===e.cat?'selected':''}>${c}</option>`).join('');
+  document.getElementById('editNote').value = e.note || '';
+  document.getElementById('editRecurring').checked = !!e.recurring;
+  document.getElementById('editError').style.display = 'none';
+  document.getElementById('editModal').classList.add('show');
+  document.getElementById('editName').focus();
+}
+function closeEditExpense(){ editingExpenseId = null; document.getElementById('editModal').classList.remove('show'); }
+function saveEditExpense(){
+  const e = state.expenses.find(x=>x.id===editingExpenseId); if(!e) return closeEditExpense();
+  const name = (document.getElementById('editName').value||'').trim();
+  const amt = parseFloat(document.getElementById('editAmt').value);
+  const errBox = document.getElementById('editError');
+  errBox.style.display = 'none';
+  if(!name){ errBox.textContent = 'Please enter a name.'; errBox.style.display='block'; return; }
+  if(!amt || isNaN(amt) || amt<=0){ errBox.textContent = 'Please enter a valid amount greater than 0.'; errBox.style.display='block'; return; }
+  e.name = name; e.amount = amt; e.cat = document.getElementById('editCat').value;
+  e.note = (document.getElementById('editNote').value||'').trim(); e.recurring = document.getElementById('editRecurring').checked;
+  save(); renderAll(); closeEditExpense();
+}
+
 
 /* ---------- CATEGORY BUDGET LIMITS ---------- */
 function renderBudgetLimitsForm(){
@@ -868,7 +1127,7 @@ function drawTrendChart(canvasId){
   const dpr = window.devicePixelRatio || 1; canvas.width = w*dpr; canvas.height = h*dpr;
   const ctx = canvas.getContext('2d'); ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr); ctx.clearRect(0,0,w,h);
   const months = lastNMonthKeys(6); const income = getIncome();
-  const data = months.map(m=>{ const exp = monthsExpenses(m.key).reduce((a,b)=>a+b.amount,0); return {m:m.label, inc: income.monthly, exp}; });
+  const data = months.map(m=>{ const exp = monthsExpenses(m.key).reduce((a,b)=>a+b.amount,0); return {m:m.label, inc: getIncomeForMonth(m.key).monthly, exp}; });
   const maxVal = Math.max(...data.map(d=>Math.max(d.inc,d.exp)), 100) * 1.15;
   const padL=44, padB=26, padT=14, padR=10; const chartW = w-padL-padR, chartH = h-padB-padT; const groupW = chartW/data.length;
   const isDark = state.dark; const gridColor = isDark ? '#1e293b':'#e2e8f0'; const textColor = isDark ? '#94a3b8':'#64748b';
@@ -972,8 +1231,55 @@ function renderAll(){
   } else { tipText.textContent = 'Add your income above to start getting personalized tips.'; }
   document.getElementById('tipBar').style.width = usage+'%';
   renderForecast(monthExpenses, income, totalExp);
+  renderOnboarding();
+  renderInsights(income, totalExp);
+  renderNetWorth();
   drawTrendChart('trendChart');
   if(document.getElementById('page-reports').classList.contains('active')) drawTrendChart('trendChart2');
+}
+
+/* ---------- ONBOARDING / EMPTY STATE ---------- */
+function hasAnyData(){
+  const anyIncome = state.incomeByMonth && Object.values(state.incomeByMonth).some(e=> (parseFloat(e.wage)||0)>0 || (parseFloat(e.monthlyIncome)||0)>0);
+  return anyIncome || (state.expenses && state.expenses.length>0) || (state.goals && state.goals.length>0);
+}
+function renderOnboarding(){
+  const box = document.getElementById('onboardBox');
+  if(!box) return;
+  if(state.onboarded || hasAnyData()){ box.innerHTML=''; return; }
+  const name = (state.userName||'').trim();
+  box.innerHTML = `
+    <div class="onboard">
+      <button class="onboard-close" id="onboardClose" aria-label="Dismiss">✕</button>
+      <h3>Welcome to OlaPurse${name?', '+escapeHtml(name):''} 👋</h3>
+      <p>Three quick steps to get going: 1) set your income in the <b>Income</b> card below, 2) log a few expenses with <b>Add Expense</b>, 3) set a target in <b>Goals</b>. Everything saves automatically on this device — and you can back it up any time in Settings.</p>
+      <div class="onboard-actions">
+        <button class="btn btn-white" id="onboardSample">✨ Explore with sample data</button>
+        <button class="btn btn-clear" id="onboardDismiss">I'll start on my own</button>
+      </div>
+    </div>`;
+  document.getElementById('onboardClose').onclick = dismissOnboarding;
+  document.getElementById('onboardDismiss').onclick = dismissOnboarding;
+  document.getElementById('onboardSample').onclick = loadSampleData;
+}
+function dismissOnboarding(){ state.onboarded = true; save(); renderOnboarding(); }
+function loadSampleData(){
+  if(hasAnyData() && !confirm('Load sample data? This adds example income, expenses, and goals so you can explore. You can erase it later with "Start fresh".')) return;
+  state = Object.assign(sampleState(), { dark: state.dark, currency: state.currency, userName: state.userName, aiEndpoint: state.aiEndpoint });
+  state.currentMonth = defaultMonthKey();
+  save();
+  populatePeriodSelects(); populateCurrencySelect();
+  setIncomeMode(incomeGet(state.currentMonth).incomeMode || 'hourly');
+  renderFavChips(); applyTheme(); goTo('dashboard');
+}
+function startFresh(){
+  if(!confirm('Erase ALL your data on this device — income, every expense, goal, budget, and all months? This cannot be undone.')) return;
+  const keep = { dark: state.dark, currency: state.currency };
+  state = Object.assign(emptyState(), keep);
+  state.currentMonth = defaultMonthKey();
+  save();
+  populatePeriodSelects(); populateCurrencySelect();
+  setIncomeMode('hourly'); renderFavChips(); applyTheme(); goTo('dashboard');
 }
 function renderForecast(monthExpenses, income, totalExp){
   const box = document.getElementById('forecastBox');
@@ -1097,14 +1403,47 @@ let chatGreeted = false;
 function greetChat(){
   if(chatGreeted) return; chatGreeted = true;
   const name = (state.userName||'').trim();
-  addChatMsg('bot', `Hi${name?', '+name:''}! I'm your financial assistant. I read ${currentMonthLabel()}'s numbers right here in your browser to answer your questions — nothing leaves your device. Ask how you're doing, what to cut back on, or whether you're on track for your goals.`);
+  const mode = (state.aiEndpoint||'').trim() ? "I'm connected to your AI model" : "I read this month's numbers right here in your browser";
+  addChatMsg('bot', `Hi${name?', '+name:''}! I'm your financial assistant. ${mode} to answer your questions. Ask how you're doing, what to cut back on, or whether you're on track for your goals.`);
+}
+async function askAIEndpoint(question){
+  const s = assistantSnapshot();
+  const context = {
+    month: s.monthLabel,
+    income_monthly: Math.round(s.income.monthly),
+    expenses_total: Math.round(s.totalExp),
+    balance: Math.round(s.balance),
+    usage_percent: Math.round(s.usage),
+    categories: s.byCat.list.map(c=>({name:c.name, amount:Math.round(c.value)})),
+    budgets: state.budgets,
+    goals: state.goals.map(g=>({name:g.name, saved:g.saved, target:g.target}))
+  };
+  const res = await fetch(state.aiEndpoint.trim(), {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ question, context })
+  });
+  if(!res.ok) throw new Error('endpoint '+res.status);
+  const data = await res.json();
+  const text = data.reply || data.text || data.answer || (data.content && data.content[0] && data.content[0].text);
+  if(!text) throw new Error('no reply');
+  return text;
 }
 function handleAsk(){
   const input = document.getElementById('chatInput');
   const q = (input.value||'').trim();
   if(!q) return;
   addChatMsg('user', q); input.value = '';
-  setTimeout(()=> addChatMsg('bot', assistantAnswer(q)), 220);
+  const endpoint = (state.aiEndpoint||'').trim();
+  if(endpoint){
+    addChatMsg('bot', '…');
+    const pending = document.getElementById('chatLog').lastChild;
+    askAIEndpoint(q)
+      .then(text=>{ pending.textContent = text; })
+      .catch(()=>{ pending.textContent = assistantAnswer(q) + "\n\n(Couldn't reach your AI endpoint just now, so that's the on-device answer.)"; })
+      .finally(()=>{ const log=document.getElementById('chatLog'); log.scrollTop = log.scrollHeight; });
+  } else {
+    setTimeout(()=> addChatMsg('bot', assistantAnswer(q)), 220);
+  }
 }
 document.getElementById('chatSendBtn').addEventListener('click', handleAsk);
 document.getElementById('chatInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); handleAsk(); } });
@@ -1211,22 +1550,305 @@ function initUserName(){
   const input = document.getElementById('userNameInput');
   input.value = state.userName || '';
   input.addEventListener('input', ()=>{ state.userName = input.value; save(); updateWelcomeLine(); });
-  if(!state.userName){
-    const entered = prompt("Welcome! What's your name? (used only to personalize your dashboard, stored on this device)");
-    if(entered && entered.trim()){ state.userName = entered.trim(); save(); input.value = state.userName; }
-  }
   updateWelcomeLine();
 }
+
+/* ---------- SETTINGS ACTIONS: backup / restore / sample / fresh / AI endpoint ---------- */
+function initDataControls(){
+  const aiInput = document.getElementById('aiEndpointInput');
+  aiInput.value = state.aiEndpoint || '';
+  aiInput.addEventListener('input', ()=>{ state.aiEndpoint = aiInput.value.trim(); save(); });
+
+  document.getElementById('backupBtn').addEventListener('click', ()=>{
+    downloadJSON(`olapurse-backup-${new Date().toISOString().slice(0,10)}.json`, state);
+    document.getElementById('backupMsg').textContent = 'Backup downloaded. Keep it somewhere safe.';
+  });
+  document.getElementById('restoreFile').addEventListener('change', (ev)=>{
+    const file = ev.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (e)=>{
+      try{
+        const data = JSON.parse(e.target.result);
+        if(typeof data !== 'object' || !('expenses' in data) && !('incomeByMonth' in data) && !('goals' in data)) throw new Error('bad');
+        if(!confirm('Restore this backup? It will REPLACE all data currently on this device.')) { ev.target.value=''; return; }
+        state = Object.assign(emptyState(), data);
+        if(!state.incomeByMonth || typeof state.incomeByMonth!=='object') state.incomeByMonth = {};
+        save();
+        populatePeriodSelects(); populateCurrencySelect();
+        setIncomeMode(incomeGet(state.currentMonth).incomeMode || 'hourly');
+        renderFavChips(); applyTheme(); initUserName();
+        document.getElementById('aiEndpointInput').value = state.aiEndpoint || '';
+        document.getElementById('backupMsg').textContent = 'Backup restored.';
+        goTo('dashboard');
+      }catch(err){ document.getElementById('backupMsg').textContent = "That file didn't look like an OlaPurse backup."; }
+      ev.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+  document.getElementById('loadSampleBtn').addEventListener('click', loadSampleData);
+  document.getElementById('startFreshBtn').addEventListener('click', startFresh);
+}
+
+/* ---------- EDIT MODAL CONTROLS ---------- */
+document.getElementById('editSaveBtn').addEventListener('click', saveEditExpense);
+document.getElementById('editCancelBtn').addEventListener('click', closeEditExpense);
+document.getElementById('editModal').addEventListener('click', (e)=>{ if(e.target.id==='editModal') closeEditExpense(); });
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && document.getElementById('editModal').classList.contains('show')) closeEditExpense(); });
+['editName','editAmt','editNote'].forEach(id=>{ document.getElementById(id).addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); saveEditExpense(); } }); });
+
+/* ---------- TOAST ---------- */
+let toastTimer = null;
+function toast(msg){
+  const t = document.getElementById('toast'); if(!t) return;
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=> t.classList.remove('show'), 2200);
+}
+
+/* ---------- ACCOUNT / PROFILES ---------- */
+function initialsOf(str){ const s=(str||'').trim(); if(!s) return '🙂'; const parts=s.split(/\s+/); return ((parts[0]||'')[0]||'').toUpperCase() + ((parts[1]||'')[0]||'').toUpperCase() || s[0].toUpperCase(); }
+function avatarHTML(p, size){
+  if(p && p.picture) return `<img class="avatar" src="${p.picture}" alt="">`;
+  return `<div class="avatar-initial" style="font-size:${size||14}px;">${p ? initialsOf(p.name||p.label) : '🙂'}</div>`;
+}
+function renderAccount(){
+  const p = activeProfile();
+  const btn = document.getElementById('accountBtn');
+  if(btn) btn.innerHTML = avatarHTML(p, 13);
+  // modal identity
+  const idBox = document.getElementById('accountIdentity');
+  if(idBox && p){
+    const sub = p.type==='google' ? (p.email||'Signed in with Google') : 'Local profile on this device';
+    idBox.innerHTML = `<div class="profile-row active"><div class="p-left"><div class="p-avatar">${avatarHTML(p,15)}</div><div><div class="p-name">${escapeHtml(p.name||p.label)}</div><div class="p-sub">${escapeHtml(sub)}</div></div></div></div>`;
+  }
+  // profiles list
+  const list = loadProfiles(); const box = document.getElementById('profileList');
+  if(box){
+    box.innerHTML = list.map(pr=>{
+      const active = pr.id===activeProfileId();
+      const del = (!active && list.length>1) ? `<button class="del-btn" title="Delete profile" onclick="deleteProfile('${pr.id}')">🗑</button>` : '';
+      const sub = pr.type==='google' ? 'Google' : 'Local';
+      return `<div class="profile-row ${active?'active':''}">
+        <div class="p-left"><div class="p-avatar">${avatarHTML(pr,14)}</div><div><div class="p-name">${escapeHtml(pr.name||pr.label)}</div><div class="p-sub">${sub}${active?' · current':''}</div></div></div>
+        <div style="display:flex; gap:6px; align-items:center;">${active?'':`<button class="btn btn-sm btn-ghost" onclick="switchProfile('${pr.id}')" style="flex:0 0 auto;">Switch</button>`}${del}</div>
+      </div>`;
+    }).join('');
+  }
+  // sign-out button visible only for a Google session
+  const signOut = document.getElementById('signOutBtn');
+  if(signOut) signOut.style.display = (p && p.type==='google') ? '' : 'none';
+}
+function openAccount(){ document.getElementById('accountModal').classList.add('show'); renderAccount(); initGoogle(); }
+function closeAccount(){ document.getElementById('accountModal').classList.remove('show'); }
+function reloadForProfile(){
+  state = loadState();
+  populatePeriodSelects(); populateCurrencySelect();
+  ensureRecurringForMonth(state.currentMonth); ensureRecurringIncomeForMonth(state.currentMonth);
+  setIncomeMode(incomeGet(state.currentMonth).incomeMode || 'hourly');
+  renderFavChips(); applyTheme(); initUserName();
+  const ai = document.getElementById('aiEndpointInput'); if(ai) ai.value = state.aiEndpoint || '';
+  renderAccount();
+}
+function switchProfile(id, opts){
+  save();                       // persist current profile first
+  setActiveProfile(id);
+  state = loadState();
+  if(opts && opts.name && !state.userName){ state.userName = opts.name; }
+  save();
+  reloadForProfile(); closeAccount(); goTo('dashboard');
+}
+function addLocalProfile(label){
+  label = (label||'').trim(); if(!label) return;
+  const list = loadProfiles();
+  const id = 'p_' + Date.now();
+  list.push({ id, label, name:label, email:'', picture:'', type:'local' });
+  saveProfiles(list);
+  switchProfile(id, { name: label });
+  toast('Profile "'+label+'" added');
+}
+function deleteProfile(id){
+  const list = loadProfiles();
+  if(list.length<=1 || id===activeProfileId()) return;
+  const pr = list.find(p=>p.id===id);
+  if(!confirm('Delete profile "'+(pr?pr.name||pr.label:'')+'" and all of its data on this device? This cannot be undone.')) return;
+  try{ localStorage.removeItem(pStateKey(id)); }catch(e){}
+  saveProfiles(list.filter(p=>p.id!==id));
+  renderAccount();
+  toast('Profile deleted');
+}
+
+/* ---- Google Sign-In (optional; needs GOOGLE_CLIENT_ID + registered origin) ---- */
+let googleInited = false;
+function decodeJwt(token){ try{ return JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))); }catch(e){ return {}; } }
+function onGoogleCredential(resp){
+  const claims = decodeJwt(resp.credential || '');
+  const email = claims.email || '', name = claims.name || email || 'Google user', picture = claims.picture || '';
+  let list = loadProfiles();
+  let prof = list.find(p=>p.type==='google' && p.email===email);
+  if(!prof){
+    prof = { id:'g_' + (email||('u'+Date.now())).replace(/[^a-z0-9]/gi,'_'), label:name, name, email, picture, type:'google' };
+    list.push(prof); saveProfiles(list);
+  } else { prof.name = name; prof.picture = picture; saveProfiles(list); }
+  switchProfile(prof.id, { name });
+  toast('Signed in as '+name);
+}
+function initGoogle(){
+  const wrap = document.getElementById('googleBtnWrap');
+  const hint = document.getElementById('googleHint');
+  if(!GOOGLE_CLIENT_ID){
+    if(wrap) wrap.innerHTML = '';
+    if(hint) hint.textContent = 'Tip: add a Google Client ID in the code to enable “Sign in with Google”.';
+    return;
+  }
+  if(hint) hint.textContent = '';
+  if(!(window.google && google.accounts && google.accounts.id)){
+    if(hint) hint.textContent = 'Loading Google sign-in…';
+    return;
+  }
+  if(!googleInited){
+    try{ google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onGoogleCredential }); googleInited = true; }
+    catch(e){ if(hint) hint.textContent = 'Google sign-in could not start.'; return; }
+  }
+  if(wrap){ wrap.innerHTML=''; try{ google.accounts.id.renderButton(wrap, { theme:'outline', size:'large', shape:'pill', text:'signin_with' }); }catch(e){} }
+}
+function signOut(){
+  try{ if(window.google && google.accounts && google.accounts.id) google.accounts.id.disableAutoSelect(); }catch(e){}
+  const list = loadProfiles();
+  const local = list.find(p=>p.type==='local') || list[0];
+  if(local) switchProfile(local.id, {});
+  toast('Signed out');
+}
+
+/* ---------- NET WORTH ---------- */
+function addAccount(){
+  const nameEl=document.getElementById('acctName'), typeEl=document.getElementById('acctType'), balEl=document.getElementById('acctBalance'), err=document.getElementById('acctError');
+  const name=(nameEl.value||'').trim(), bal=parseFloat(balEl.value), type=typeEl.value;
+  err.style.display='none';
+  if(!name){ err.textContent='Please enter an account name.'; err.style.display='block'; return; }
+  if(isNaN(bal)){ err.textContent='Please enter a balance.'; err.style.display='block'; return; }
+  if(!Array.isArray(state.accounts)) state.accounts=[];
+  state.accounts.push({ id: state.nextId++, name, type, balance: Math.abs(bal) });
+  nameEl.value=''; balEl.value='';
+  save(); renderNetWorth();
+}
+function deleteAccount(id){ state.accounts = (state.accounts||[]).filter(a=>a.id!==id); save(); renderNetWorth(); }
+function updateAccountBalance(id, val){ const a=(state.accounts||[]).find(x=>x.id===id); if(a){ a.balance=Math.abs(parseFloat(val)||0); save(); renderNetWorth(); } }
+function renderNetWorth(){
+  const list = state.accounts || [];
+  const assets = list.filter(a=>a.type==='asset').reduce((s,a)=>s+(parseFloat(a.balance)||0),0);
+  const liab = list.filter(a=>a.type==='liability').reduce((s,a)=>s+(parseFloat(a.balance)||0),0);
+  const aEl=document.getElementById('nwAssets'), lEl=document.getElementById('nwLiab'), tEl=document.getElementById('nwTotal'), box=document.getElementById('acctList');
+  if(aEl) aEl.textContent=fmt(assets);
+  if(lEl) lEl.textContent=fmt(liab);
+  if(tEl) tEl.textContent=fmt(assets-liab);
+  if(box){
+    box.innerHTML = list.length ? list.map(a=>`
+      <div class="nw-row">
+        <div style="display:flex; align-items:center; gap:10px;"><span class="nw-tag ${a.type==='asset'?'nw-asset':'nw-liab'}">${a.type==='asset'?'Asset':'Owe'}</span><b style="font-size:13.5px;">${escapeHtml(a.name)}</b></div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <input type="number" value="${a.balance}" onchange="updateAccountBalance(${a.id}, this.value)" style="width:120px; text-align:right;">
+          <button class="del-btn" title="Delete" onclick="deleteAccount(${a.id})">🗑</button>
+        </div>
+      </div>`).join('') : '<div class="empty">No accounts yet. Add what you own and owe to see your net worth.</div>';
+  }
+}
+
+/* ---------- INSIGHTS ---------- */
+function renderInsights(income, totalExp){
+  const row = document.getElementById('insightsRow'); if(!row) return;
+  const monthly = income.monthly;
+  const savingsRate = monthly>0 ? ((monthly-totalExp)/monthly)*100 : 0;
+  const prevKey = prevMonthKey(state.currentMonth);
+  const prevExp = monthsExpenses(prevKey).reduce((a,b)=>a+b.amount,0);
+  let momText, momColor;
+  if(prevExp<=0){ momText = 'No prior month to compare'; momColor='var(--muted)'; }
+  else { const change=((totalExp-prevExp)/prevExp)*100; const up=change>0; momText=`${up?'▲':'▼'} ${Math.abs(change).toFixed(0)}% vs last month`; momColor= up ? '#f43f5e' : '#10b981'; }
+  const {year, monthIdx0}=parseMonthKey(state.currentMonth); const now=new Date();
+  const days = (year===now.getFullYear() && monthIdx0===now.getMonth()) ? now.getDate() : new Date(year, monthIdx0+1, 0).getDate();
+  const avgDay = totalExp / Math.max(days,1);
+  const srColor = savingsRate>=20 ? '#10b981' : (savingsRate>=0 ? '#f59e0b' : '#f43f5e');
+  row.innerHTML = `
+    <div class="insight-tile"><div class="l">Savings rate</div><div class="v" style="color:${srColor};">${monthly>0?savingsRate.toFixed(0)+'%':'—'}</div><div class="d" style="color:var(--muted);">${monthly>0?'of income kept this month':'add income to see this'}</div></div>
+    <div class="insight-tile"><div class="l">Spending trend</div><div class="v" style="font-size:16px; color:${momColor}; margin-top:4px;">${momText}</div></div>
+    <div class="insight-tile"><div class="l">Avg. daily spend</div><div class="v">${fmt(avgDay)}</div><div class="d" style="color:var(--muted);">over ${days} day${days>1?'s':''}</div></div>`;
+}
+
+/* ---------- SHAREABLE SUMMARY ---------- */
+function summaryText(){
+  const s = assistantSnapshot();
+  const sr = s.income.monthly>0 ? Math.round((s.balance/s.income.monthly)*100) : null;
+  const lines = [
+    `OlaPurse — ${s.monthLabel}`,
+    `Income: ${fmt(s.income.monthly)}`,
+    `Expenses: ${fmt(s.totalExp)}`,
+    `Balance: ${fmt(s.balance)}`,
+  ];
+  if(sr!==null) lines.push(`Savings rate: ${sr}%`);
+  if(s.byCat.list.length) lines.push(`Top category: ${s.byCat.list[0].name} (${fmt(s.byCat.list[0].value)})`);
+  return lines.join('\n');
+}
+function drawShareCard(){
+  const c = document.getElementById('shareCanvas'); if(!c) return;
+  const ctx = c.getContext('2d'); const W=c.width, H=c.height;
+  const g = ctx.createLinearGradient(0,0,W,H); g.addColorStop(0,'#6366f1'); g.addColorStop(1,'#3b82f6');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  const s = assistantSnapshot();
+  ctx.fillStyle='rgba(255,255,255,.92)'; ctx.font='700 30px Inter, sans-serif'; ctx.fillText('OlaPurse', 50, 66);
+  ctx.fillStyle='rgba(255,255,255,.75)'; ctx.font='400 22px Inter, sans-serif'; ctx.fillText(s.monthLabel+' summary', 50, 100);
+  const rows = [ ['Income', fmt(s.income.monthly)], ['Expenses', fmt(s.totalExp)], ['Balance', fmt(s.balance)] ];
+  let y=175;
+  rows.forEach(([label,val])=>{
+    ctx.fillStyle='rgba(255,255,255,.8)'; ctx.font='400 26px Inter, sans-serif'; ctx.fillText(label, 50, y);
+    ctx.fillStyle='#fff'; ctx.font='700 34px Inter, sans-serif'; ctx.textAlign='right'; ctx.fillText(val, W-50, y); ctx.textAlign='left';
+    y+=70;
+  });
+  const sr = s.income.monthly>0 ? Math.round((s.balance/s.income.monthly)*100) : null;
+  if(sr!==null){ ctx.fillStyle='rgba(255,255,255,.95)'; ctx.font='700 26px Inter, sans-serif'; ctx.fillText(`Savings rate: ${sr}%`, 50, y+10); }
+  ctx.fillStyle='rgba(255,255,255,.6)'; ctx.font='400 18px Inter, sans-serif'; ctx.fillText('Built with OlaPurse', 50, H-34);
+}
+function openShare(){ document.getElementById('shareModal').classList.add('show'); drawShareCard(); }
+function closeShare(){ document.getElementById('shareModal').classList.remove('show'); }
+function downloadShareImage(){
+  const c=document.getElementById('shareCanvas');
+  try{ const a=document.createElement('a'); a.href=c.toDataURL('image/png'); a.download=`olapurse-${state.currentMonth}.png`; a.click(); toast('Image downloaded'); }
+  catch(e){ toast('Could not export image'); }
+}
+async function copyShareText(){
+  const text = summaryText();
+  try{ await navigator.clipboard.writeText(text); toast('Summary copied'); }
+  catch(e){ toast('Copy not available — long-press to select'); }
+}
+
+/* ---------- ACCOUNT / NET WORTH / SHARE CONTROLS ---------- */
+document.getElementById('accountBtn').addEventListener('click', openAccount);
+document.getElementById('accountCloseBtn').addEventListener('click', closeAccount);
+document.getElementById('accountModal').addEventListener('click', e=>{ if(e.target.id==='accountModal') closeAccount(); });
+document.getElementById('addProfileBtn').addEventListener('click', ()=>{ const el=document.getElementById('newProfileName'); addLocalProfile(el.value); el.value=''; });
+document.getElementById('newProfileName').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); const el=e.target; addLocalProfile(el.value); el.value=''; } });
+document.getElementById('signOutBtn').addEventListener('click', signOut);
+
+document.getElementById('addAcctBtn').addEventListener('click', addAccount);
+['acctName','acctBalance'].forEach(id=> document.getElementById(id).addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addAccount(); } }));
+
+document.getElementById('shareSummaryBtn').addEventListener('click', openShare);
+document.getElementById('shareCloseBtn').addEventListener('click', closeShare);
+document.getElementById('shareDownloadBtn').addEventListener('click', downloadShareImage);
+document.getElementById('shareCopyBtn').addEventListener('click', copyShareText);
+document.getElementById('shareModal').addEventListener('click', e=>{ if(e.target.id==='shareModal') closeShare(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ if(document.getElementById('accountModal').classList.contains('show')) closeAccount(); if(document.getElementById('shareModal').classList.contains('show')) closeShare(); } });
 
 /* ---------- INIT ---------- */
 populatePeriodSelects();
 populateCurrencySelect();
 ensureRecurringForMonth(state.currentMonth);
-setIncomeMode(state.incomeMode || 'hourly');
+ensureRecurringIncomeForMonth(state.currentMonth);
+setIncomeMode(incomeGet(state.currentMonth).incomeMode || 'hourly');
 renderFavChips();
 applyTheme();
 initConverter();
 initUserName();
+initDataControls();
+renderAccount();
+window.addEventListener('load', initGoogle);
 </script>
 </body>
 </html>
